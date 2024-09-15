@@ -11,6 +11,7 @@ class Simulation:
         self.width, self.height = dimensions
         self.main_window = None
         self.paused = False
+        self.dragging = False
         self.pixels_per_meter = pixels_per_meter
         self.time_scale = time_scale
 
@@ -22,7 +23,20 @@ class Simulation:
         self.offset = Vector(offset)
 
     def handle_event(self, event):
-        pass
+        MOUSE_SCALE_DELTA = 5E-8
+
+        if event.type == pygame.MOUSEWHEEL:
+            self.pixels_per_meter += event.y * MOUSE_SCALE_DELTA
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.dragging = True
+            pygame.mouse.get_rel()
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.dragging = False
+        if event.type == pygame.MOUSEMOTION and self.dragging:
+            self.offset += Vector(pygame.mouse.get_rel())
+
+
 
     def process_keyboard(self):
         keys = pygame.key.get_pressed()
@@ -63,8 +77,7 @@ class Simulation:
 
             for group in self.groups:
                 group.update(delta_time * self.time_scale)
-                self.render_group.render(
-                    self.main_window, self.pixels_per_meter, self.offset)
+                self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
 
             pygame.display.flip()
             delta_time = clock.tick(60) / 1000
