@@ -31,15 +31,15 @@ class Simulation:
 
         if keys[pygame.K_PLUS] or keys[pygame.K_EQUALS]:
             self.pixels_per_meter += SCALE_DELTA
-        elif keys[pygame.K_MINUS] and self.pixels_per_meter - SCALE_DELTA > 0:
+        if keys[pygame.K_MINUS] and self.pixels_per_meter - SCALE_DELTA > 0:
             self.pixels_per_meter -= SCALE_DELTA
-        elif keys[pygame.K_UP] or keys[pygame.K_w]:
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
             self.offset += Vector((0, OFFSET_DELTA))
-        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             self.offset += Vector((0, -OFFSET_DELTA))
-        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.offset += Vector((OFFSET_DELTA, 0))
-        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.offset += Vector((-OFFSET_DELTA, 0))
 
     def run(self):
