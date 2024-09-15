@@ -1,7 +1,7 @@
 import pygame
-from pygame.sprite import Sprite, Group
+from pygame.sprite import Sprite
 
-from physics import Entity, Point, Vector, Physics
+from physics import Entity, Point, Vector
 
 
 class Planet(Entity):
@@ -22,18 +22,3 @@ class SimPlanetaryObject(Sprite):
         if not isinstance(self.entity, Planet):
             raise ValueError("Entity is not a Planet")
         pygame.draw.circle(screen, self.color, (self.x, self.y), int(self.entity.radius * scale))
-
-class PhysicsGroup(Group):
-    def __init__(self, *sprites):
-        super().__init__(*sprites)
-
-    def update(self, delta_time: float):
-        entities = [sprite.entity for sprite in self.sprites()]
-        for i, entity in enumerate(entities):
-            for other_entity in entities[i + 1:]:
-                Physics.apply_gravity(entity, other_entity)
-            Physics.move(entity, delta_time)
-
-    def render(self, screen, scale):
-        for entity in self.sprites():
-            entity.draw(screen, scale)

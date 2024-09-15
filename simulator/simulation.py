@@ -2,18 +2,20 @@ import sys
 
 import pygame
 
-from simulator import entities
+from simulator.groups import RenderGroup, PhysicsGroup
 
 
 class Simulation:
-    def __init__(self, dimensions=(1280, 720), pixels_per_meter: float=1e-5, time_scale: float=1, planets=()):
+    def __init__(self, dimensions=(1280, 720), pixels_per_meter: float=1e-5, time_scale: float=1, groups=()):
         self.width, self.height = dimensions
         self.main_window = None
         self.pixels_per_meter = pixels_per_meter
         self.time_scale = time_scale
 
-        self.physical_entities = entities.PhysicsGroup(*planets)
+        self.objects = {sprite for group in groups for sprite in group}
 
+        self.groups = [PhysicsGroup(*self.objects)] + list(groups[::])
+        self.render_group = RenderGroup(*self.objects)
 
     def handle_event(self, event):
         pass
@@ -36,9 +38,9 @@ class Simulation:
                 else:
                     self.handle_event(event)
 
-            self.physical_entities.update(delta_time * self.time_scale)
-            self.physical_entities.render(self.main_window, self.pixels_per_meter)
+            for group in self.groups:
+                group.update(delta_time * self.time_scale)
+            self.render_group.render(self.main_window, self.pixels_per_meter)
 
             pygame.display.flip()
             delta_time = clock.tick(60) / 1000
-            print(delta_time)
