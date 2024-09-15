@@ -23,11 +23,12 @@ class Simulation:
         self.offset = Vector(offset)
 
     def handle_event(self, event):
+        # change scale with mouse wheel
         MOUSE_SCALE_DELTA = 5E-8
-
         if event.type == pygame.MOUSEWHEEL:
             self.pixels_per_meter += event.y * MOUSE_SCALE_DELTA
 
+        # hold any mouse button to drag
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.dragging = True
             pygame.mouse.get_rel()
@@ -36,7 +37,9 @@ class Simulation:
         if event.type == pygame.MOUSEMOTION and self.dragging:
             self.offset += Vector(pygame.mouse.get_rel())
 
-
+        # window is resized
+        if event.type == pygame.VIDEORESIZE:
+            self.width, self.height = event.w, event.h
 
     def process_keyboard(self):
         keys = pygame.key.get_pressed()
@@ -58,7 +61,7 @@ class Simulation:
 
     def run(self):
         pygame.init()
-        self.main_window = pygame.display.set_mode((self.width, self.height))
+        self.main_window = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
         pygame.display.set_caption('Rocket Simulator')
         delta_time = 0.016
         clock = pygame.time.Clock()
