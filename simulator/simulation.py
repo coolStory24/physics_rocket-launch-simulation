@@ -7,7 +7,7 @@ from physics import Vector
 
 
 class Simulation:
-    def __init__(self, dimensions=(1280, 720), pixels_per_meter: float = 1E-6, time_scale: float = 1E5, groups=()):
+    def __init__(self, dimensions=(1280, 720), offset = (640, 360), pixels_per_meter: float = 1E-6, time_scale: float = 1E5, groups=()):
         self.width, self.height = dimensions
         self.main_window = None
         self.paused = False
@@ -19,7 +19,7 @@ class Simulation:
         self.groups = [PhysicsGroup(*self.objects)] + list(groups[::])
         self.render_group = RenderGroup(*self.objects)
 
-        self.offset = Vector((600, 300))
+        self.offset = Vector(offset)
 
     def handle_event(self, event):
         pass
