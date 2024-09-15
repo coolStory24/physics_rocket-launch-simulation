@@ -8,6 +8,8 @@ class Vector:
         elif len(args) == 2 and all(isinstance(arg, Point) for arg in args):
             point1, point2 = args
             self._coordinates = [j - i for i, j in zip(point1.coordinates, point2.coordinates)]
+        else:
+            raise ValueError("Invalid number of arguments")
 
     def __add__(self, other):
         return Vector([i + j for i, j in zip(self._coordinates, other.coordinates)])
@@ -21,6 +23,7 @@ class Vector:
 
     def __isub__(self, other):
         self._coordinates = [i - j for i, j in zip(self._coordinates, other.coordinates)]
+        return self
 
     def __mul__(self, number: float):
         return Vector([i * number for i in self._coordinates])
@@ -69,6 +72,10 @@ class Point:
     @property
     def y(self):
         return self._coordinates[1]
+
+    @property
+    def coordinates(self):
+        return self._coordinates
 
 
 class Entity:

@@ -38,6 +38,6 @@ class RenderGroup(Group):
     def __init__(self, *sprites):
         super().__init__(*sprites)
 
-    def render(self, screen, scale):
+    def render(self, screen, scale: float, offset: Vector):
         for entity in self.sprites():
-            entity.draw(screen, scale)
+            entity.draw(screen, scale, offset)

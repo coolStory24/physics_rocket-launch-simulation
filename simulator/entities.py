@@ -11,14 +11,16 @@ class Planet(Entity):
 
 
 class SimPlanetaryObject(Sprite):
-    def __init__(self, entity: Entity, screen_coordinates, color=pygame.Color("White")):
+    def __init__(self, entity: Entity, color=pygame.Color("White")):
         super().__init__()
         self.entity = entity
-        self.x = screen_coordinates[0]
-        self.y = screen_coordinates[1]
         self.color = color
 
-    def draw(self, screen, scale):
+    def draw(self, screen, scale, offset: Vector):
         if not isinstance(self.entity, Planet):
             raise ValueError("Entity is not a Planet")
-        pygame.draw.circle(screen, self.color, (self.x, self.y), int(self.entity.radius * scale))
+        pygame.draw.circle(
+            screen, self.color,
+            (self.entity.position.x * scale + offset.x, self.entity.position.y * scale + offset.y),
+            max(int(self.entity.radius * scale), 1)
+        )
