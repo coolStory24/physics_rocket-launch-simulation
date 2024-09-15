@@ -9,6 +9,7 @@ class Simulation:
     def __init__(self, dimensions=(1280, 720), pixels_per_meter: float=1e-5, time_scale: float=1, groups=()):
         self.width, self.height = dimensions
         self.main_window = None
+        self.paused = False
         self.pixels_per_meter = pixels_per_meter
         self.time_scale = time_scale
 
@@ -26,9 +27,8 @@ class Simulation:
         pygame.display.set_caption('Rocket Simulator')
         delta_time = 0.016
         clock = pygame.time.Clock()
-        paused = False
 
-        while not paused:
+        while not self.paused:
             self.main_window.fill(pygame.Color("black"))
 
             for event in pygame.event.get():
