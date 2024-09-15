@@ -9,9 +9,6 @@ class Planet(Entity):
         super().__init__(weight, position, speed)
         self.radius = radius
 
-    def draw(self, screen, scale, offset: Vector):
-        raise NotImplementedError()
-
 
 class SimPlanetaryObject(Sprite):
     def __init__(self, entity: Entity, color=pygame.Color("White")):
