@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from simulator.groups import RenderGroup, PhysicsGroup
+from groups import RenderGroup, PhysicsGroup
 
 
 class Simulation:

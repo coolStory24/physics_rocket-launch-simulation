@@ -1,6 +1,6 @@
 from pygame.sprite import Group, Sprite
 
-from simulator.physics import Vector, Physics
+from physics import Vector, Physics
 
 
 class PhysicsGroup(Group):
