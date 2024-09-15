@@ -6,7 +6,7 @@ from simulator import entities
 
 
 class Simulation:
-    def __init__(self, dimensions=(1280, 720), pixels_per_meter: float=20, time_scale: float=1, planets=()) -> None:
+    def __init__(self, dimensions=(1280, 720), pixels_per_meter: float=1e-5, time_scale: float=1, planets=()):
         self.width, self.height = dimensions
         self.main_window = None
         self.pixels_per_meter = pixels_per_meter
@@ -36,8 +36,9 @@ class Simulation:
                 else:
                     self.handle_event(event)
 
-            self.physical_entities.update(delta_time)
+            self.physical_entities.update(delta_time * self.time_scale)
             self.physical_entities.render(self.main_window, self.pixels_per_meter)
 
             pygame.display.flip()
             delta_time = clock.tick(60) / 1000
+            print(delta_time)

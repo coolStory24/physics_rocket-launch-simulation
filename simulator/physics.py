@@ -3,66 +3,76 @@ import math
 
 class Vector:
     def __init__(self, *args):
-        if len(args) == 1 and isinstance(args[0], list):
-            self.coordinates = args[0][::]
+        if len(args) == 1 and (isinstance(args[0], list) or isinstance(args[0], tuple)):
+            self._coordinates = args[0][::]
         elif len(args) == 2 and all(isinstance(arg, Point) for arg in args):
             point1, point2 = args
-            self.coordinates = [j - i for i, j in zip(point1.coordinates, point2.coordinates)]
+            self._coordinates = [j - i for i, j in zip(point1.coordinates, point2.coordinates)]
 
     def __add__(self, other):
-        return Vector([i + j for i, j in zip(self.coordinates, other.coordinates)])
+        return Vector([i + j for i, j in zip(self._coordinates, other.coordinates)])
 
     def __iadd__(self, other):
-        self.coordinates = [i + j for i, j in zip(self.coordinates, other.coordinates)]
+        self._coordinates = [i + j for i, j in zip(self._coordinates, other.coordinates)]
+        return self
 
     def __sub__(self, other):
-        return Vector([i - j for i, j in zip(self.coordinates, other.coordinates)])
+        return Vector([i - j for i, j in zip(self._coordinates, other.coordinates)])
 
     def __isub__(self, other):
-        self.coordinates = [i - j for i, j in zip(self.coordinates, other.coordinates)]
+        self._coordinates = [i - j for i, j in zip(self._coordinates, other.coordinates)]
 
     def __mul__(self, number: float):
-        return Vector([i * number for i in self.coordinates])
+        return Vector([i * number for i in self._coordinates])
 
     def __truediv__(self, number: float):
-        return Vector([i / number for i in self.coordinates])
+        return Vector([i / number for i in self._coordinates])
 
     def __getitem__(self, item: int):
-        return self.coordinates[item]
+        return self._coordinates[item]
 
+    @property
+    def coordinates(self):
+        return tuple(self._coordinates)
+
+    @property
     def x(self):
-        return self.coordinates[0]
+        return self._coordinates[0]
 
+    @property
     def y(self):
-        return self.coordinates[1]
+        return self._coordinates[1]
 
+    @property
     def magnitude(self):
-        return math.sqrt(sum([i ** 2 for i in self.coordinates]))
+        return math.sqrt(sum([i ** 2 for i in self._coordinates]))
 
     def normalize(self):
-        magnitude = self.magnitude()
-        return Vector([i / magnitude for i in self.coordinates])
+        magnitude = self.magnitude
+        return Vector([i / magnitude for i in self._coordinates])
 
 
 class Point:
-    def __init__(self, coordinates) -> None:
-        self.coordinates = coordinates
+    def __init__(self, coordinates):
+        self._coordinates = coordinates
 
     def __getitem__(self, item):
-        return self.coordinates[item]
+        return self._coordinates[item]
 
     def __add__(self, vector: Vector):
-        return Point([i + j for i, j in zip(self.coordinates, vector.coordinates)])
+        return Point([i + j for i, j in zip(self._coordinates, vector.coordinates)])
 
+    @property
     def x(self):
-        return self.coordinates[0]
+        return self._coordinates[0]
 
+    @property
     def y(self):
-        return self.coordinates[1]
+        return self._coordinates[1]
 
 
 class Entity:
-    def __init__(self, weight: float, position: Point, speed: Vector, force: Vector=Vector((0, 0))) -> None:
+    def __init__(self, weight: float, position: Point, speed: Vector, force: Vector=Vector((0, 0))):
         self.position = position
         self.speed = speed
         self.weight = weight
@@ -74,7 +84,7 @@ class Physics:
 
     @staticmethod
     def calculate_distance(point1: Point, point2: Point):
-        return math.sqrt((point1.x() - point2.x()) ** 2 + (point1.y() - point2.y()) ** 2)
+        return math.sqrt((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2)
 
     @staticmethod
     def apply_gravity(body1: Entity, body2: Entity):
