@@ -2,6 +2,7 @@ import pygame
 from pygame.sprite import Sprite
 
 from physics import Entity, Point, Vector
+from config import MIN_PLANETARY_SIZE
 
 
 class Planet(Entity):
@@ -22,5 +23,5 @@ class SimPlanetaryObject(Sprite):
         pygame.draw.circle(
             screen, self.color,
             (self.entity.position.x * scale + offset.x, self.entity.position.y * scale + offset.y),
-            max(int(self.entity.radius * scale), 1)
+            max(int(self.entity.radius * scale), MIN_PLANETARY_SIZE)
         )
