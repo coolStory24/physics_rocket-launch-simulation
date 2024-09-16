@@ -22,10 +22,17 @@ class Simulation:
 
         self.offset = Vector(offset)
 
+    def update_pixels_per_meter(self, center: Vector, delta: float):
+        # recalculating offset to keep center in the same position on the screen
+        self.offset = center - (center - self.offset) * (self.pixels_per_meter + delta) / self.pixels_per_meter
+
+        self.pixels_per_meter += delta
+
     def handle_event(self, event):
         # change scale with mouse wheel
         if event.type == pygame.MOUSEWHEEL and self.pixels_per_meter + event.y * MOUSE_SCALE_DELTA > 0:
-            self.pixels_per_meter += event.y * MOUSE_SCALE_DELTA
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            self.update_pixels_per_meter(Vector((mouse_x, mouse_y)), event.y * MOUSE_SCALE_DELTA)
 
         # hold any mouse button to drag
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -43,10 +50,11 @@ class Simulation:
     def process_keyboard(self):
         keys = pygame.key.get_pressed()
 
+        display_center = Vector((pygame.display.Info().current_w / 2, pygame.display.Info().current_h / 2))
         if keys[pygame.K_PLUS] or keys[pygame.K_EQUALS]:
-            self.pixels_per_meter += SCALE_DELTA
+            self.update_pixels_per_meter(display_center, SCALE_DELTA)
         if keys[pygame.K_MINUS] and self.pixels_per_meter - SCALE_DELTA > 0:
-            self.pixels_per_meter -= SCALE_DELTA
+            self.update_pixels_per_meter(display_center, -SCALE_DELTA)
 
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             self.offset += Vector((0, OFFSET_DELTA))
