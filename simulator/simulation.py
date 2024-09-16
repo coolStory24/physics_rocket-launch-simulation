@@ -89,4 +89,4 @@ class Simulation:
                 self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
 
             pygame.display.flip()
-            delta_time = clock.tick(60) / 1000
+            clock.tick(60) / 1000
