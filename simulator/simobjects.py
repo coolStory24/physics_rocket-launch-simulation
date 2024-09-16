@@ -1,8 +1,8 @@
 import pygame
 from pygame.sprite import Sprite
 
-from config import MIN_PLANETARY_SIZE, MIN_ROCKET_SIZE
-from entities import Planet, RoundRocket
+from config import MIN_PLANETARY_SIZE, ROCKET_MARKER_SIZE
+from entities import Planet, BaseRocket
 from physics import Entity, Vector
 
 
@@ -31,16 +31,16 @@ class SimPlanetaryObject(SimObject):
         )
 
 
-class SimRoundRocketObject(SimObject):
-    def __init__(self, entity: RoundRocket, color=pygame.Color("firebrick1"), name: str = ""):
+class SimRocketObject(SimObject):
+    def __init__(self, entity: BaseRocket, color=pygame.Color("firebrick1"), name: str = ""):
         super().__init__(entity, name=name)
         self.color = color
 
     def draw(self, screen, scale: float, offset: Vector):
-        if not isinstance(self.entity, RoundRocket):
+        if not isinstance(self.entity, BaseRocket):
             raise ValueError("Entity is not a Round Rocket")
         pygame.draw.circle(
             screen, self.color,
             (self.entity.position.x * scale + offset.x, self.entity.position.y * scale + offset.y),
-            max(int(self.entity.radius * scale), MIN_ROCKET_SIZE)
+            ROCKET_MARKER_SIZE
         )

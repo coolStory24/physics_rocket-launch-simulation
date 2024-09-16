@@ -1,7 +1,7 @@
 from pygame.sprite import Group, Sprite
 
 from physics import Vector, Physics
-from simobjects import SimRoundRocketObject
+from simobjects import SimRocketObject
 
 
 class PhysicsGroup(Group):
@@ -36,7 +36,7 @@ class MoveGroup(PhysicsGroup):
 
 
 class SmartGroup(PhysicsGroup):
-    def __init__(self, *sprites: SimRoundRocketObject):
+    def __init__(self, *sprites: SimRocketObject):
         super().__init__(*sprites)
 
     def update(self, delta_time: float):

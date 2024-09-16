@@ -7,10 +7,9 @@ class Planet(Entity):
         self.radius = radius
 
 
-class RoundRocket(Entity):
-    def __init__(self, weight, position: Point, speed: Vector, radius: float):
+class BaseRocket(Entity):
+    def __init__(self, weight, position: Point, speed: Vector):
         super().__init__(weight, position, speed)
-        self.radius = radius
 
     def fire_engine(self, engine_force_vector: Vector):
         self.force += engine_force_vector
