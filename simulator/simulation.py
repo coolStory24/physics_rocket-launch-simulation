@@ -6,6 +6,7 @@ from groups import RenderGroup, PhysicsGroup
 from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
 
+
 class Simulation:
     def __init__(self, dimensions=(1280, 720), offset = (640, 360), pixels_per_meter: float = 1E-5, time_scale: float = 1E3, groups=()):
         self.width, self.height = dimensions
@@ -24,15 +25,15 @@ class Simulation:
 
     def update_pixels_per_meter(self, center: Vector, delta: float):
         # recalculating offset to keep center in the same position on the screen
-        self.offset = center - (center - self.offset) * (self.pixels_per_meter + delta) / self.pixels_per_meter
+        self.offset = center - (center - self.offset) * delta
 
-        self.pixels_per_meter += delta
+        self.pixels_per_meter *= delta
 
     def handle_event(self, event):
         # change scale with mouse wheel
-        if event.type == pygame.MOUSEWHEEL and self.pixels_per_meter + event.y * MOUSE_SCALE_DELTA > 0:
+        if event.type == pygame.MOUSEWHEEL:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.update_pixels_per_meter(Vector((mouse_x, mouse_y)), event.y * MOUSE_SCALE_DELTA)
+            self.update_pixels_per_meter(Vector((mouse_x, mouse_y)), MOUSE_SCALE_DELTA ** event.y if event.y > 0 else 1 / MOUSE_SCALE_DELTA ** (-event.y))
 
         # hold any mouse button to drag
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -53,8 +54,8 @@ class Simulation:
         display_center = Vector((pygame.display.Info().current_w / 2, pygame.display.Info().current_h / 2))
         if keys[pygame.K_PLUS] or keys[pygame.K_EQUALS]:
             self.update_pixels_per_meter(display_center, SCALE_DELTA)
-        if keys[pygame.K_MINUS] and self.pixels_per_meter - SCALE_DELTA > 0:
-            self.update_pixels_per_meter(display_center, -SCALE_DELTA)
+        if keys[pygame.K_MINUS]:
+            self.update_pixels_per_meter(display_center, 1/SCALE_DELTA)
 
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             self.offset += Vector((0, OFFSET_DELTA))
@@ -89,4 +90,4 @@ class Simulation:
                 self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
 
             pygame.display.flip()
-            clock.tick(60) / 1000
+            clock.tick(60)

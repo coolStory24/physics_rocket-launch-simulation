@@ -34,6 +34,9 @@ class Vector:
     def __getitem__(self, item: int):
         return self._coordinates[item]
 
+    def __repr__(self):
+        return f"Vector({self._coordinates})"
+
     @property
     def coordinates(self):
         return tuple(self._coordinates)
@@ -65,6 +68,9 @@ class Point:
     def __add__(self, vector: Vector):
         return Point([i + j for i, j in zip(self._coordinates, vector.coordinates)])
 
+    def __sub__(self, vector: Vector):
+        return Point([i - j for i, j in zip(self._coordinates, vector.coordinates)])
+
     @property
     def x(self):
         return self._coordinates[0]
@@ -76,6 +82,9 @@ class Point:
     @property
     def coordinates(self):
         return self._coordinates
+
+    def __repr__(self):
+        return f"Point({self.coordinates})"
 
 
 class Entity:
