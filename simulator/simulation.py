@@ -4,7 +4,7 @@ import pygame
 
 from groups import RenderGroup, PhysicsGroup
 from physics import Vector
-
+from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
 
 class Simulation:
     def __init__(self, dimensions=(1280, 720), offset = (640, 360), pixels_per_meter: float = 1E-6, time_scale: float = 1E5, groups=()):
@@ -24,7 +24,6 @@ class Simulation:
 
     def handle_event(self, event):
         # change scale with mouse wheel
-        MOUSE_SCALE_DELTA = 5E-8
         if event.type == pygame.MOUSEWHEEL and self.pixels_per_meter + event.y * MOUSE_SCALE_DELTA > 0:
             self.pixels_per_meter += event.y * MOUSE_SCALE_DELTA
 
@@ -43,14 +42,12 @@ class Simulation:
 
     def process_keyboard(self):
         keys = pygame.key.get_pressed()
-        OFFSET_DELTA = 3
-        SCALE_DELTA = 1E-8
 
         if keys[pygame.K_PLUS] or keys[pygame.K_EQUALS]:
             self.pixels_per_meter += SCALE_DELTA
         if keys[pygame.K_MINUS] and self.pixels_per_meter - SCALE_DELTA > 0:
             self.pixels_per_meter -= SCALE_DELTA
-            
+
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             self.offset += Vector((0, OFFSET_DELTA))
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
