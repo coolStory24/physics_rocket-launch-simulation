@@ -1,7 +1,7 @@
 from pygame.sprite import Group, Sprite
 
 from physics import Vector, Physics
-from simulator.simobjects import SimRoundRocketObject
+from simobjects import SimRoundRocketObject
 
 
 class PhysicsGroup(Group):

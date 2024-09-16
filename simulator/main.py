@@ -7,7 +7,7 @@ from simulation import Simulation
 from simobjects import SimPlanetaryObject
 from entities import RoundRocket
 from simobjects import SimRoundRocketObject
-from simulator.groups import SmartGroup
+from groups import SmartGroup
 
 if __name__ == '__main__':
     earth = Planet(5.972E24, Point((0, 0)), Vector((0, 0)), 6371E3)
