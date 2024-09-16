@@ -11,13 +11,22 @@ class Planet(Entity):
         self.radius = radius
 
 
-class SimPlanetaryObject(Sprite):
-    def __init__(self, entity: Entity, color=pygame.Color("White")):
+class SimObject(Sprite):
+    def __init__(self, entity: Entity, name: str=""):
         super().__init__()
         self.entity = entity
+        self.name = name
+
+    def draw(self, screen, scale: float, offset: Vector):
+        raise NotImplementedError()
+
+
+class SimPlanetaryObject(SimObject):
+    def __init__(self, entity: Entity, color=pygame.Color("White"), name: str=""):
+        super().__init__(entity, name=name)
         self.color = color
 
-    def draw(self, screen, scale, offset: Vector):
+    def draw(self, screen, scale: float, offset: Vector):
         if not isinstance(self.entity, Planet):
             raise ValueError("Entity is not a Planet")
         pygame.draw.circle(
