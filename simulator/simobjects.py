@@ -38,7 +38,6 @@ class SimRoundRocketObject(SimObject):
 
     def draw(self, screen, scale: float, offset: Vector):
         if not isinstance(self.entity, RoundRocket):
-            print(self.entity.__class__)
             raise ValueError("Entity is not a Round Rocket")
         pygame.draw.circle(
             screen, self.color,
