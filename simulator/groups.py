@@ -1,6 +1,7 @@
 from pygame.sprite import Group, Sprite
 
 from physics import Vector, Physics
+from simobjects import SimRocketObject
 
 
 class PhysicsGroup(Group):
@@ -32,6 +33,16 @@ class MoveGroup(PhysicsGroup):
         entities = [sprite.entity for sprite in self.sprites()]
         for entity in entities:
             Physics.move(entity, delta_time)
+
+
+class SmartGroup(PhysicsGroup):
+    def __init__(self, *sprites: SimRocketObject):
+        super().__init__(*sprites)
+
+    def update(self, delta_time: float):
+        rockets = [sprite.entity for sprite in self.sprites()]
+        for rocket in rockets:
+            rocket.make_decision()
 
 
 class RenderGroup(Group):

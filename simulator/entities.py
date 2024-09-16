@@ -1,8 +1,4 @@
-import pygame
-from pygame.sprite import Sprite
-
 from physics import Entity, Point, Vector
-from config import MIN_PLANETARY_SIZE
 
 
 class Planet(Entity):
@@ -11,26 +7,12 @@ class Planet(Entity):
         self.radius = radius
 
 
-class SimObject(Sprite):
-    def __init__(self, entity: Entity, name: str=""):
-        super().__init__()
-        self.entity = entity
-        self.name = name
+class BaseRocket(Entity):
+    def __init__(self, weight, position: Point, speed: Vector):
+        super().__init__(weight, position, speed)
 
-    def draw(self, screen, scale: float, offset: Vector):
-        raise NotImplementedError()
+    def fire_engine(self, engine_force_vector: Vector):
+        self.force += engine_force_vector
 
-
-class SimPlanetaryObject(SimObject):
-    def __init__(self, entity: Entity, color=pygame.Color("White"), name: str=""):
-        super().__init__(entity, name=name)
-        self.color = color
-
-    def draw(self, screen, scale: float, offset: Vector):
-        if not isinstance(self.entity, Planet):
-            raise ValueError("Entity is not a Planet")
-        pygame.draw.circle(
-            screen, self.color,
-            (self.entity.position.x * scale + offset.x, self.entity.position.y * scale + offset.y),
-            max(int(self.entity.radius * scale), MIN_PLANETARY_SIZE)
-        )
+    def make_decision(self):
+        pass
