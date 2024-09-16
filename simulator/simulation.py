@@ -7,7 +7,7 @@ from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
 
 class Simulation:
-    def __init__(self, dimensions=(1280, 720), offset = (640, 360), pixels_per_meter: float = 1E-6, time_scale: float = 1E5, groups=()):
+    def __init__(self, dimensions=(1280, 720), offset = (640, 360), pixels_per_meter: float = 1E-5, time_scale: float = 1E3, groups=()):
         self.width, self.height = dimensions
         self.main_window = None
         self.paused = False
