@@ -25,7 +25,7 @@ class Simulation:
     def handle_event(self, event):
         # change scale with mouse wheel
         MOUSE_SCALE_DELTA = 5E-8
-        if event.type == pygame.MOUSEWHEEL:
+        if event.type == pygame.MOUSEWHEEL and self.pixels_per_meter + event.y * MOUSE_SCALE_DELTA > 0:
             self.pixels_per_meter += event.y * MOUSE_SCALE_DELTA
 
         # hold any mouse button to drag
@@ -50,6 +50,7 @@ class Simulation:
             self.pixels_per_meter += SCALE_DELTA
         if keys[pygame.K_MINUS] and self.pixels_per_meter - SCALE_DELTA > 0:
             self.pixels_per_meter -= SCALE_DELTA
+            
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             self.offset += Vector((0, OFFSET_DELTA))
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
