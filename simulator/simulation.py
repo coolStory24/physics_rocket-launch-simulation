@@ -2,6 +2,7 @@ import sys
 
 import pygame
 
+import config
 from groups import RenderGroup, PhysicsGroup
 from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
@@ -43,6 +44,11 @@ class Simulation:
             self.dragging = False
         if event.type == pygame.MOUSEMOTION and self.dragging:
             self.offset += Vector(pygame.mouse.get_rel())
+
+        if event.type == pygame.KEYDOWN:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_c]:
+                config.draw_markers = not config.draw_markers
 
         # window is resized
         if event.type == pygame.VIDEORESIZE:

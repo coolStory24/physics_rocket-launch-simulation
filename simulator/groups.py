@@ -1,8 +1,11 @@
+import pygame
+
 from pygame.sprite import Group, Sprite
 from math import pi
 
 from physics import Vector, Physics
 from simobjects import SimRocketObject, SimPlanetaryObject
+from config import FONT_PATH
 
 
 class PhysicsGroup(Group):
@@ -74,7 +77,9 @@ class RotatingGroup(PhysicsGroup):
 class RenderGroup(Group):
     def __init__(self, *sprites):
         super().__init__(*sprites)
+        pygame.font.init()
+        self.font = pygame.font.Font(FONT_PATH, 17)
 
     def render(self, screen, scale: float, offset: Vector):
         for entity in self.sprites():
-            entity.draw(screen, scale, offset)
+            entity.draw(screen, scale, offset, self.font)
