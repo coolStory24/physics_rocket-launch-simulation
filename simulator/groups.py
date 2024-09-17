@@ -83,3 +83,14 @@ class RenderGroup(Group):
     def render(self, screen, scale: float, offset: Vector):
         for entity in self.sprites():
             entity.draw(screen, scale, offset, self.font)
+
+
+class WidgetGroup(Group):
+    def __init__(self, *sprites):
+        super().__init__(*sprites)
+        pygame.font.init()
+        self.font = pygame.font.Font(FONT_PATH, 17)
+
+    def render(self, screen, time: float):
+        for widget in self.sprites():
+            widget.render(screen, self.font, time)
