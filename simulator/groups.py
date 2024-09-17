@@ -1,7 +1,7 @@
 from pygame.sprite import Group, Sprite
 
 from physics import Vector, Physics
-from simobjects import SimRocketObject
+from simobjects import SimRocketObject, SimPlanetaryObject
 
 
 class PhysicsGroup(Group):
@@ -43,6 +43,20 @@ class SmartGroup(PhysicsGroup):
         rockets = [sprite.entity for sprite in self.sprites()]
         for rocket in rockets:
             rocket.make_decision()
+
+
+class CollisionGroup(Group):
+    def __init__(self, *sprites):
+        super().__init__(*sprites)
+
+    def update(self, delta_time: float):
+        rockets = [sprite for sprite in self.sprites() if isinstance(sprite, SimRocketObject)]
+        planets = [sprite for sprite in self.sprites() if isinstance(sprite, SimPlanetaryObject)]
+
+        for rocket in rockets:
+            for planet in planets:
+                if Physics.calculate_distance(planet.entity.position, rocket.entity.position) < planet.entity.radius:
+                    rocket.kill()
 
 
 class RenderGroup(Group):
