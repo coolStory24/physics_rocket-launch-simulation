@@ -56,7 +56,7 @@ class CollisionGroup(Group):
         for rocket in rockets:
             for planet in planets:
                 diff = Vector(planet.entity.position, rocket.entity.position)
-                if diff.magnitude < planet.entity.radius:
+                if Physics.calculate_distance(planet.entity.position, rocket.entity.position) < planet.entity.radius:
                     rocket.kill()
 
 
