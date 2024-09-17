@@ -2,6 +2,7 @@ import sys
 
 import pygame
 
+import config
 from groups import RenderGroup, PhysicsGroup
 from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
@@ -22,7 +23,6 @@ class Simulation:
         self.render_group = RenderGroup(*self.objects)
 
         self.offset = Vector(offset)
-        self.draw_markers = True
 
     def update_pixels_per_meter(self, center: Vector, delta: float):
         # recalculating offset to keep center in the same position on the screen
@@ -48,7 +48,7 @@ class Simulation:
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_c]:
-                self.draw_markers = not self.draw_markers
+                config.draw_markers = not config.draw_markers
 
         # window is resized
         if event.type == pygame.VIDEORESIZE:
@@ -93,7 +93,7 @@ class Simulation:
 
             for group in self.groups:
                 group.update(delta_time * self.time_scale)
-                self.render_group.render(self.main_window, self.pixels_per_meter, self.offset, draw_markers=self.draw_markers)
+                self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
 
             pygame.display.flip()
             clock.tick(60)

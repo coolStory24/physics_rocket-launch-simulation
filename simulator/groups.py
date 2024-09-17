@@ -80,6 +80,6 @@ class RenderGroup(Group):
         pygame.font.init()
         self.font = pygame.font.Font(FONT_PATH, 17)
 
-    def render(self, screen, scale: float, offset: Vector, draw_markers: bool = True):
+    def render(self, screen, scale: float, offset: Vector):
         for entity in self.sprites():
-            entity.draw(screen, scale, offset, self.font, draw_marker=draw_markers)
+            entity.draw(screen, scale, offset, self.font)
