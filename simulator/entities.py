@@ -2,9 +2,11 @@ from physics import Entity, Point, Vector
 
 
 class Planet(Entity):
-    def __init__(self, weight: float, position: Point, speed: Vector, radius: float):
+    def __init__(self, weight: float, position: Point, speed: Vector, radius: float, angle_speed: float):
         super().__init__(weight, position, speed)
         self.radius = radius
+        self.polar_angle = 0
+        self.angle_speed = angle_speed
 
 
 class BaseRocket(Entity):
