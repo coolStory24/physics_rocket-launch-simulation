@@ -57,6 +57,10 @@ class Vector:
         magnitude = self.magnitude
         return Vector([i / magnitude for i in self._coordinates])
 
+    @property
+    def polar_angle(self):
+        return math.atan2(self.y, self.x)
+
 
 class Point:
     def __init__(self, coordinates):
