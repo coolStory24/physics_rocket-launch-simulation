@@ -1,6 +1,5 @@
 from pygame.sprite import Sprite
 
-import events
 from logger import Logger
 from config import WIDGET_MARGIN
 

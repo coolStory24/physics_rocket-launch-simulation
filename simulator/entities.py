@@ -1,5 +1,3 @@
-from inspect import signature
-
 from physics import Entity, Physics, Point, Vector
 
 

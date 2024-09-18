@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 import events
-from simulator.events import RocketEvent, EventSubscriber
+from events import EventSubscriber
 
 
 class Logger(events.EventSubscriber):
@@ -28,11 +28,9 @@ class RocketLogger(EventSubscriber):
         if isinstance(event, events.RocketEvent):
             self.data.append(event)
         elif isinstance(event, events.CollisionEvent):
-            print(event.rocket, event.planet, event.str_prefix())
             self.build_graph()
 
     def build_graph(self):
-        print([e.speed.magnitude for e in self.data][-5:])
         plt.plot([e.time for e in self.data], [e.speed.magnitude for e in self.data])
         plt.xlabel('Time')
         plt.ylabel('Speed')

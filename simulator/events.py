@@ -1,4 +1,4 @@
-from simulator.physics import Vector, Point
+from physics import Vector, Point
 
 
 class Subscription:
@@ -14,7 +14,6 @@ class EventRegistrer:
     @staticmethod
     def register_event(event):
         for subscription in EventRegistrer.subscriptions:
-            print("Register:", [(s.subscriber, s.event_type) for s in EventRegistrer.subscriptions])
             if isinstance(event, subscription.event_type):
                 subscription.subscriber.handle_event(event)
         if event.store:
@@ -23,7 +22,6 @@ class EventRegistrer:
     @staticmethod
     def subscribe(subscriber, event_type):
         EventRegistrer.subscriptions.append(Subscription(subscriber, event_type))
-        print("Subscribe:", [(s.subscriber, s.event_type) for s in EventRegistrer.subscriptions])
 
         for event in EventRegistrer.events:
             if isinstance(event, event_type):

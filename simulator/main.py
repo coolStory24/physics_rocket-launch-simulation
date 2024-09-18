@@ -1,19 +1,17 @@
 import pygame
 import math
 
-from entities import BaseRocket, Planet, VerticalTakeOffRocket
+from entities import Planet, VerticalTakeOffRocket
 from physics import Vector, Point
 from groups import GravityGroup, MoveGroup, CollisionGroup, SmartGroup, RotatingGroup
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
-from simulator.events import RocketEvent
-from simulator.logger import RocketLogger
+from logger import RocketLogger
 
 if __name__ == '__main__':
     earth = Planet(5.972E24, Point((0, 0)), Vector((0, 0)), 6371E3, math.pi / 12 / 60 / 60)
     moon = Planet(7.346E22, Point((384E6, 0)), Vector((0.0, 1.022E3)), 1737E3, 0)
-    rocket = VerticalTakeOffRocket(100, Point((6371E3 + 100000, 0)), Vector((0, 0)), earth, target_height=9000, target_acceleration=9.8*10, engine_firing_height=1)
-    # rocket = BaseRocket(1000, Point((0, 384E5)), Vector((0, 0)))
+    rocket = VerticalTakeOffRocket(100, Point((6371E3, 0)), Vector((0, 0)), earth)
     earth_sprite = SimPlanetaryObject(earth, pygame.Color("deepskyblue"), name="Earth")
     moon_sprite = SimPlanetaryObject(moon, pygame.Color("white"), name="Moon")
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
