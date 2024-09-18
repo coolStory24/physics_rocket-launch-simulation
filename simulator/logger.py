@@ -17,7 +17,7 @@ class ConsoleLogger(Logger):
     def handle_event(self, event):
         print(event)
 
-class RocketLogger(EventSubscriber):
+class RocketTracker(EventSubscriber):
     def __init__(self):
         super().__init__()
         self.subscribe(events.RocketEvent)

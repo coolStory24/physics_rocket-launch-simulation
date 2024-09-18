@@ -37,18 +37,17 @@ class EventSubscriber:
 
 
 class Event:
-    def __init__(self, time: float, display: bool=True, store: bool=True):
+    def __init__(self, time: float, store: bool=True):
         self.time = time
-        self.display = display
         self.store = store
-
-    def __str__(self):
-        return "Event with unimplemented to_string()"
 
 
 class LogableEvent(Event):
     def __init__(self, time: float, display: bool=True, store: bool=True):
-        super().__init__(time, display, store)
+        super().__init__(time, store)
+
+    def __str__(self):
+        return "Event with unimplemented to_string()"
 
     def str_prefix(self):
         seconds = int(self.time % 60)
@@ -71,6 +70,6 @@ class CollisionEvent(LogableEvent):
 
 class RocketEvent(Event):
     def __init__(self, time, speed: Vector, position: Point):
-        super().__init__(time, False, store=False)
+        super().__init__(time, store=False)
         self.speed = speed
         self.position = position

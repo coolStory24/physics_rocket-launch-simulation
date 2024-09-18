@@ -6,7 +6,7 @@ from physics import Vector, Point
 from groups import GravityGroup, MoveGroup, CollisionGroup, SmartGroup, RotatingGroup
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
-from logger import RocketLogger
+from logger import RocketTracker
 
 if __name__ == '__main__':
     earth = Planet(5.972E24, Point((0, 0)), Vector((0, 0)), 6371E3, math.pi / 12 / 60 / 60)
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
 
     # Building graphs
-    rocket_logger = RocketLogger()
+    rocket_tracker = RocketTracker()
 
     simulation = Simulation(
         time_scale=1E2,
