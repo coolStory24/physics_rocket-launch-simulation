@@ -1,3 +1,5 @@
+from inspect import signature
+
 from physics import Entity, Physics, Point, Vector
 
 
@@ -28,7 +30,7 @@ class VerticalTakeOffRocket(BaseRocket):
         self.target_height = target_height
         # acceleration value, that the rocket should maintain while climbing
         self.target_acceleration_value = target_acceleration
-        self.phase = 1
+        self.phase = self.phase_take_off
         # height, at which the rocket should start deceleration while descending
         self.engine_firing_height = engine_firing_height
         self.deceleration_value = None
@@ -45,20 +47,20 @@ class VerticalTakeOffRocket(BaseRocket):
             return True
         return False
     
-    def calculate_phase_1(self):
+    def phase_take_off(self, delta_time:float=0):
         if not self.should_stop_ascending():
             gravity_force_vector = Physics.calculate_gravity(self, self.planet)
             normalized_target_acceleration_vector = Vector(self.planet.position, self.position).normalize()
             thrust_vector = normalized_target_acceleration_vector * self.weight * self.target_acceleration_value - gravity_force_vector
             self.fire_engine(thrust_vector)
         else:
-            self.phase += 1
+            self.phase = self.phase_wait
 
-    def calculate_phase_2(self):
+    def phase_wait(self, delta_time:float=0):
         if self.get_height() < self.engine_firing_height:
-            self.phase += 1
+            self.phase = self.phase_land
 
-    def calculate_phase_3(self, delta_time: float):
+    def phase_land(self, delta_time: float):
         gravity_force_vector = Physics.calculate_gravity(self, self.planet)
         if self.deceleration_value is None:
             self.deceleration_value = self.speed.magnitude ** 2 / (2 * self.get_height())
@@ -73,19 +75,11 @@ class VerticalTakeOffRocket(BaseRocket):
         new_absolute_height = Physics.calculate_distance(new_position, self.planet.position)
         current_absolute_height = Physics.calculate_distance(self.position, self.planet.position)
         if new_absolute_height > current_absolute_height:
-            self.phase += 1
+            self.phase = None
         self.fire_engine(thrust_vector)
-    
+
     def make_decision(self, delta_time: float):
         # 1. Take off while maintaining certain acceleration
         # 2. Turn off engines, wait to fly to the desired height
         # 3. Once reached the pre-determined height, activate deceleration engines
-        match self.phase:
-            case 1:
-                self.calculate_phase_1()
-            case 2:
-                self.calculate_phase_2()
-            case 3:
-                self.calculate_phase_3(delta_time)
-            case _:
-                pass
+        self.phase(delta_time)

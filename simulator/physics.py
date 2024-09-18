@@ -105,7 +105,7 @@ class Physics:
     @staticmethod
     def calculate_distance(point1: Point, point2: Point):
         return math.sqrt((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2)
-    
+
     @staticmethod
     def calculate_gravity(body1: Entity, body2: Entity):
         weight1 = body1.weight
