@@ -51,12 +51,3 @@ class CollisionEvent(Event):
 
     def __str__(self):
         return self.str_preffix() + f"{self.rocket.name} has fallen on {self.planet.name} at {self.collision_angle:.3f} with speed {self.finite_speed:.3f} m/s"
-
-
-class ConsoleLogger(EventSubscriber):
-    def __init__(self, event_type):
-        super().__init__()
-        self.subscribe(Event)
-
-    def handle_event(self, event):
-        print(event)
