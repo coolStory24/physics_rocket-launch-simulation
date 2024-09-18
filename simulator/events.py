@@ -1,19 +1,19 @@
-class EventHandler:
+class EventRegistrer:
     subscribers = []
 
     @staticmethod
-    def handle_event(event):
-        for subscriber in EventHandler.subscribers:
+    def register_event(event):
+        for subscriber in EventRegistrer.subscribers:
             subscriber.handle_event(event)
 
     @staticmethod
     def subscribe(obj):
-        EventHandler.subscribers.append(obj)
+        EventRegistrer.subscribers.append(obj)
 
 
 class EventSubscriber:
     def __init__(self):
-        EventHandler.subscribe(self)
+        EventRegistrer.subscribe(self)
 
     def handle_event(self, event):
         raise NotImplementedError()

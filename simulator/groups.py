@@ -68,7 +68,7 @@ class CollisionGroup(PhysicsGroup):
                     landing_angle_absolute = Vector(planet.entity.position, rocket.entity.position).polar_angle
                     landing_angle_relative = (landing_angle_absolute - planet.entity.polar_angle) % (2 * math.pi)
                     finite_speed_magnitude = (rocket.entity.speed - planet.entity.speed).magnitude
-                    events.EventHandler.handle_event(events.CollisionEvent(self.time, planet, rocket, landing_angle_relative, finite_speed_magnitude))
+                    events.EventRegistrer.register_event(events.CollisionEvent(self.time, planet, rocket, landing_angle_relative, finite_speed_magnitude))
                     rocket.kill()
 
 
