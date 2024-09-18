@@ -3,7 +3,7 @@ import math
 
 from entities import Planet, BaseRocket
 from physics import Vector, Point
-from groups import GravityGroup, MoveGroup, CollisionGroup, SmartGroup, RotatingGroup, WidgetGroup
+from groups import GravityGroup, MoveGroup, CollisionGroup, SmartGroup, RotatingGroup
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from widgets import ConsoleLoggerWidget, LoggerWidget, ClockWidget
