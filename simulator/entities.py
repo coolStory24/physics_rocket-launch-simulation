@@ -82,4 +82,5 @@ class VerticalTakeOffRocket(BaseRocket):
         self.fire_engine(thrust_vector)
 
     def make_decision(self, delta_time: float):
-        self.phase(delta_time)
+        if self.phase is not None:
+            self.phase(delta_time)
