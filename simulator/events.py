@@ -6,16 +6,22 @@ class Subscription:
 
 class EventRegistrer:
     subscriptions = []
+    events = []
 
     @staticmethod
     def register_event(event):
         for subscription in EventRegistrer.subscriptions:
             if isinstance(event, (subscription.event_type)):
                 subscription.subscriber.handle_event(event)
+        EventRegistrer.events.append(event)
 
     @staticmethod
     def subscribe(subscriber, event_type):
         EventRegistrer.subscriptions.append(Subscription(subscriber, event_type))
+
+        for event in EventRegistrer.events:
+            if isinstance(event, event_type):
+                subscriber.handle_event(event)
 
 
 class EventSubscriber:
