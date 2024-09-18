@@ -1,3 +1,6 @@
+from simulator.physics import Vector, Point
+
+
 class Subscription:
     def __init__(self, subscriber, event_type):
         self.subscriber = subscriber
@@ -11,13 +14,16 @@ class EventRegistrer:
     @staticmethod
     def register_event(event):
         for subscription in EventRegistrer.subscriptions:
-            if isinstance(event, (subscription.event_type)):
+            print("Register:", [(s.subscriber, s.event_type) for s in EventRegistrer.subscriptions])
+            if isinstance(event, subscription.event_type):
                 subscription.subscriber.handle_event(event)
-        EventRegistrer.events.append(event)
+        if event.store:
+            EventRegistrer.events.append(event)
 
     @staticmethod
     def subscribe(subscriber, event_type):
         EventRegistrer.subscriptions.append(Subscription(subscriber, event_type))
+        print("Subscribe:", [(s.subscriber, s.event_type) for s in EventRegistrer.subscriptions])
 
         for event in EventRegistrer.events:
             if isinstance(event, event_type):
@@ -33,21 +39,28 @@ class EventSubscriber:
 
 
 class Event:
-    def __init__(self, time: float):
+    def __init__(self, time: float, display: bool=True, store: bool=True):
         self.time = time
+        self.display = display
+        self.store = store
 
-    def str_preffix(self):
+    def __str__(self):
+        return "Event with unimplemented to_string()"
+
+
+class LogableEvent(Event):
+    def __init__(self, time: float, display: bool=True, store: bool=True):
+        super().__init__(time, display, store)
+
+    def str_prefix(self):
         seconds = int(self.time % 60)
         minutes = int(self.time / 60 % 60)
         hours = int(self.time / 3600 % 24)
         days = int(self.time / 3600 / 24)
         return f"[{days}d {hours}h {minutes}m {seconds}s]: "
 
-    def __str__(self):
-        return "Event with unimplemented to_string()"
 
-
-class CollisionEvent(Event):
+class CollisionEvent(LogableEvent):
     def __init__(self, time, planet, rocket, collision_angle, finite_speed):
         super().__init__(time)
         self.planet = planet
@@ -56,4 +69,10 @@ class CollisionEvent(Event):
         self.finite_speed = finite_speed
 
     def __str__(self):
-        return self.str_preffix() + f"{self.rocket.name} has fallen on {self.planet.name} at {self.collision_angle:.3f} with speed {self.finite_speed:.3f} m/s"
+        return self.str_prefix() + f"{self.rocket.name} has fallen on {self.planet.name} at {self.collision_angle:.3f} with speed {self.finite_speed:.3f} m/s"
+
+class RocketEvent(Event):
+    def __init__(self, time, speed: Vector, position: Point):
+        super().__init__(time, False, store=False)
+        self.speed = speed
+        self.position = position

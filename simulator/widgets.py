@@ -20,8 +20,9 @@ class LoggerWidget(Widget, Logger):
         Logger.__init__(self)
 
     def handle_event(self, event):
-        event_string = str(event)
-        self.event_strings.append(event_string)
+        if event.display:
+            event_string = str(event)
+            self.event_strings.append(event_string)
 
     def render(self, screen, font, simtime: float):
         event_texts = [font.render(text, True, "White") for text in self.event_strings]

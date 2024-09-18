@@ -37,6 +37,9 @@ class Vector:
     def __repr__(self):
         return f"Vector({self._coordinates})"
 
+    def copy(self):
+        return Vector(self._coordinates)
+
     @property
     def coordinates(self):
         return tuple(self._coordinates)
