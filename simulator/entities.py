@@ -23,6 +23,9 @@ class BaseRocket(Entity):
 
 
 class VerticalTakeOffRocket(BaseRocket):
+    # 1. Take off while maintaining certain acceleration
+    # 2. Turn off engines, wait to fly to the desired height
+    # 3. Once reached the pre-determined height, activate deceleration engines
     def __init__(self, weight, position: Point, speed: Vector, planet: Planet, target_height: float=250000, target_acceleration=9.8 * 1, engine_firing_height: float=90000):
         super().__init__(weight, position, speed)
         self.planet = planet
@@ -46,7 +49,7 @@ class VerticalTakeOffRocket(BaseRocket):
         if potential_energy < current_kinetic_energy:
             return True
         return False
-    
+
     def phase_take_off(self, delta_time:float=0):
         if not self.should_stop_ascending():
             gravity_force_vector = Physics.calculate_gravity(self, self.planet)
@@ -79,7 +82,4 @@ class VerticalTakeOffRocket(BaseRocket):
         self.fire_engine(thrust_vector)
 
     def make_decision(self, delta_time: float):
-        # 1. Take off while maintaining certain acceleration
-        # 2. Turn off engines, wait to fly to the desired height
-        # 3. Once reached the pre-determined height, activate deceleration engines
         self.phase(delta_time)
