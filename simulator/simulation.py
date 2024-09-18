@@ -6,7 +6,7 @@ import config
 from groups import RenderGroup, PhysicsGroup, WidgetGroup
 from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
-from widgets import ConsoleLoggerWidget, LoggerWidget, ClockWidget
+from widgets import LoggerWidget, ClockWidget
 
 
 class Simulation:

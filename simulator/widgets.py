@@ -7,26 +7,15 @@ from config import WIDGET_MARGIN
 class Widget(Sprite):
     def __init__(self):
         super().__init__()
-        events.EventHandler.subscribe(self)
 
     def render(self, screen, font, simtime: float):
         raise NotImplementedError()
 
 
-class ConsoleLoggerWidget(Widget, events.EventSubscriber):
-    def __init__(self):
-        super().__init__()
-
-    def handle_event(self, event):
-        print(event)
-
-    def render(self, screen, font, simtime: float):
-        pass
-
-
 class LoggerWidget(Widget, events.EventSubscriber):
     def __init__(self):
-        super().__init__()
+        Widget.__init__(self)
+        events.EventSubscriber.__init__(self)
         self.event_strings = []
 
     def handle_event(self, event):

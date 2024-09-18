@@ -12,8 +12,19 @@ class EventHandler:
 
 
 class EventSubscriber:
+    def __init__(self):
+        EventHandler.subscribe(self)
+
     def handle_event(self, event):
         raise NotImplementedError()
+
+
+class ConsoleLogger(EventSubscriber):
+    def __init__(self):
+        super().__init__()
+
+    def handle_event(self, event):
+        print(event)
 
 
 class Event:
