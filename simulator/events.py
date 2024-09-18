@@ -1,30 +1,29 @@
+class Subscription:
+    def __init__(self, subscriber, event_type):
+        self.subscriber = subscriber
+        self.event_type = event_type
+
+
 class EventRegistrer:
-    subscribers = []
+    subscriptions = []
 
     @staticmethod
     def register_event(event):
-        for subscriber in EventRegistrer.subscribers:
-            subscriber.handle_event(event)
+        for subscription in EventRegistrer.subscriptions:
+            if isinstance(event, (subscription.event_type)):
+                subscription.subscriber.handle_event(event)
 
     @staticmethod
-    def subscribe(obj):
-        EventRegistrer.subscribers.append(obj)
+    def subscribe(subscriber, event_type):
+        EventRegistrer.subscriptions.append(Subscription(subscriber, event_type))
 
 
 class EventSubscriber:
-    def __init__(self):
-        EventRegistrer.subscribe(self)
+    def subscribe(self, event_type):
+        EventRegistrer.subscribe(self, event_type)
 
     def handle_event(self, event):
         raise NotImplementedError()
-
-
-class ConsoleLogger(EventSubscriber):
-    def __init__(self):
-        super().__init__()
-
-    def handle_event(self, event):
-        print(event)
 
 
 class Event:

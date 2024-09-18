@@ -1,6 +1,7 @@
 from pygame.sprite import Sprite
 
 import events
+from logger import Logger
 from config import WIDGET_MARGIN
 
 
@@ -12,10 +13,10 @@ class Widget(Sprite):
         raise NotImplementedError()
 
 
-class LoggerWidget(Widget, events.EventSubscriber):
+class LoggerWidget(Widget, Logger):
     def __init__(self):
         Widget.__init__(self)
-        events.EventSubscriber.__init__(self)
+        Logger.__init__(self)
         self.event_strings = []
 
     def handle_event(self, event):
