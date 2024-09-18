@@ -4,7 +4,7 @@ import events
 from config import WIDGET_MARGIN
 
 
-class Widget(Sprite):
+class Widget(Sprite, events.EventSubscriber):
     def __init__(self):
         super().__init__()
         events.EventHandler.subscribe(self)

@@ -11,6 +11,11 @@ class EventHandler:
         EventHandler.subscribers.append(obj)
 
 
+class EventSubscriber:
+    def handle_event(self, event):
+        raise NotImplementedError()
+
+
 class Event:
     def __init__(self, time: float):
         self.time = time
