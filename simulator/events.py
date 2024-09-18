@@ -43,7 +43,7 @@ class Event:
 
 
 class LogableEvent(Event):
-    def __init__(self, time: float, display: bool=True, store: bool=True):
+    def __init__(self, time: float, store: bool=True):
         super().__init__(time, store)
 
     def __str__(self):
