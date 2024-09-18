@@ -11,7 +11,7 @@ from logger import ConsoleLogger
 
 
 class Simulation:
-    def __init__(self, dimensions=(1280, 720), offset = (640, 360), pixels_per_meter: float = 1E-5,
+    def __init__(self, dimensions=(1920, 1080), offset = (960, 540), pixels_per_meter: float = 1E-5,
                  time_scale: float = 1E3, groups=(), widgets=()):
         self.width, self.height = dimensions
         self.main_window = None
