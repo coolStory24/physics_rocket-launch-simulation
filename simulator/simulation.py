@@ -17,7 +17,7 @@ class Simulation:
         self.dragging = False
         self.pixels_per_meter = pixels_per_meter
         self.time_scale = time_scale
-        self.time = 0
+        self.total_sim_time = 0
 
         self.objects = {sprite for group in groups for sprite in group}
         self.groups = [PhysicsGroup(*self.objects)] + list(groups[::])
@@ -98,10 +98,10 @@ class Simulation:
             for group in self.groups:
                 group.update(delta_time * self.time_scale)
 
-            self.time += delta_time * self.time_scale
+            self.total_sim_time += delta_time * self.time_scale
 
             self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
-            self.widget_group.render(self.main_window, self.time)
+            self.widget_group.render(self.main_window, self.total_sim_time)
 
             pygame.display.flip()
             clock.tick(60)
