@@ -49,7 +49,7 @@ class SmartGroup(PhysicsGroup):
     def update(self, delta_time: float):
         rockets = [sprite.entity for sprite in self.sprites()]
         for rocket in rockets:
-            rocket.make_decision()
+            rocket.make_decision(delta_time)
 
 
 class CollisionGroup(PhysicsGroup):
