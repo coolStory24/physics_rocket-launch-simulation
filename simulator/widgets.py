@@ -4,19 +4,16 @@ import events
 from config import WIDGET_MARGIN
 
 
-class Widget(Sprite, events.EventSubscriber):
+class Widget(Sprite):
     def __init__(self):
         super().__init__()
         events.EventHandler.subscribe(self)
-
-    def handle_event(self, event):
-        raise NotImplementedError()
 
     def render(self, screen, font, simtime: float):
         raise NotImplementedError()
 
 
-class ConsoleLoggerWidget(Widget):
+class ConsoleLoggerWidget(Widget, events.EventSubscriber):
     def __init__(self):
         super().__init__()
 
@@ -27,7 +24,7 @@ class ConsoleLoggerWidget(Widget):
         pass
 
 
-class LoggerWidget(Widget):
+class LoggerWidget(Widget, events.EventSubscriber):
     def __init__(self):
         super().__init__()
         self.event_strings = []
@@ -49,9 +46,6 @@ class LoggerWidget(Widget):
 class ClockWidget(Widget):
     def __init__(self):
         super().__init__()
-
-    def handle_event(self, event):
-        pass
 
     def render(self, screen, font, simtime):
         seconds = int(simtime % 60)
