@@ -8,7 +8,7 @@ ROCKET_MARKER_SIZE = 2
 FONT_PATH = 'fonts/Inconsolata.ttf'
 FONT_SIZE = 17
 WIDGET_MARGIN = 10
-TIME_SCALE = 10E2
+TIME_SCALE = 1E2
 VERBOSE = False
 
 draw_markers = True
