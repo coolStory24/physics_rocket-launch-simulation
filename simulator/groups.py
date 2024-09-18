@@ -1,8 +1,11 @@
 import pygame
+import math
 
 from pygame.sprite import Group, Sprite
 from math import pi
 
+import events
+import config
 from physics import Vector, Physics
 from simobjects import SimRocketObject, SimPlanetaryObject
 from config import FONT_PATH
@@ -52,14 +55,20 @@ class SmartGroup(PhysicsGroup):
 class CollisionGroup(PhysicsGroup):
     def __init__(self, *sprites):
         super().__init__(*sprites)
+        self.time = 0
 
     def update(self, delta_time: float):
         rockets = [sprite for sprite in self.sprites() if isinstance(sprite, SimRocketObject)]
         planets = [sprite for sprite in self.sprites() if isinstance(sprite, SimPlanetaryObject)]
+        self.time += delta_time
 
         for rocket in rockets:
             for planet in planets:
                 if Physics.calculate_distance(planet.entity.position, rocket.entity.position) < planet.entity.radius:
+                    landing_angle_absolute = Vector(planet.entity.position, rocket.entity.position).polar_angle
+                    landing_angle_relative = (landing_angle_absolute - planet.entity.polar_angle) % (2 * math.pi)
+                    finite_speed_magnitude = (rocket.entity.speed - planet.entity.speed).magnitude
+                    events.EventRegistrer.register_event(events.CollisionEvent(self.time, planet, rocket, landing_angle_relative, finite_speed_magnitude))
                     rocket.kill()
 
 
@@ -83,3 +92,15 @@ class RenderGroup(Group):
     def render(self, screen, scale: float, offset: Vector):
         for entity in self.sprites():
             entity.draw(screen, scale, offset, self.font)
+
+
+class WidgetGroup(Group):
+    def __init__(self, *sprites):
+        super().__init__(*sprites)
+        pygame.font.init()
+        self.font = pygame.font.Font(FONT_PATH, 17)
+
+    def render(self, screen, time: float):
+        if config.draw_widgets:
+            for widget in self.sprites():
+                widget.render(screen, self.font, time)

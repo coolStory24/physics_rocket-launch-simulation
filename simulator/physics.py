@@ -61,6 +61,10 @@ class Vector:
     def dot_product(v1, v2):
         return sum([i * j for i, j in zip(v1, v2)])
 
+    @property
+    def polar_angle(self):
+        return math.atan2(self.y, self.x)
+
 
 class Point:
     def __init__(self, coordinates):

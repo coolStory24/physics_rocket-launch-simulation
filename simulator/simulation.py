@@ -3,26 +3,32 @@ import sys
 import pygame
 
 import config
-from groups import RenderGroup, PhysicsGroup
+from groups import RenderGroup, PhysicsGroup, WidgetGroup
 from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
+from widgets import LoggerWidget, ClockWidget
 
 
 class Simulation:
-    def __init__(self, dimensions=(1280, 720), offset = (640, 360), pixels_per_meter: float = 1E-5, time_scale: float = 1E3, groups=()):
+    def __init__(self, dimensions=(1280, 720), offset = (640, 360), pixels_per_meter: float = 1E-5,
+                 time_scale: float = 1E3, groups=(), widgets=()):
         self.width, self.height = dimensions
         self.main_window = None
         self.paused = False
         self.dragging = False
         self.pixels_per_meter = pixels_per_meter
         self.time_scale = time_scale
+        self.total_sim_time = 0
 
         self.objects = {sprite for group in groups for sprite in group}
-
         self.groups = [PhysicsGroup(*self.objects)] + list(groups[::])
         self.render_group = RenderGroup(*self.objects)
 
         self.offset = Vector(offset)
+
+        logger_widget = LoggerWidget()
+        clock_widget = ClockWidget()
+        self.widget_group = WidgetGroup(logger_widget, clock_widget)
 
     def update_pixels_per_meter(self, center: Vector, delta: float):
         # recalculating offset to keep center in the same position on the screen
@@ -49,6 +55,8 @@ class Simulation:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_c]:
                 config.draw_markers = not config.draw_markers
+            if keys[pygame.K_h]:
+                config.draw_widgets = not config.draw_widgets
 
         # window is resized
         if event.type == pygame.VIDEORESIZE:
@@ -93,7 +101,11 @@ class Simulation:
 
             for group in self.groups:
                 group.update(delta_time * self.time_scale)
-                self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
+
+            self.total_sim_time += delta_time * self.time_scale
+
+            self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
+            self.widget_group.render(self.main_window, self.total_sim_time)
 
             pygame.display.flip()
             clock.tick(60)
