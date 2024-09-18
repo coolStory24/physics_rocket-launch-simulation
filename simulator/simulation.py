@@ -101,9 +101,7 @@ class Simulation:
             self.time += delta_time * self.time_scale
 
             self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
-
-            if config.draw_widgets:
-                self.widget_group.render(self.main_window, self.time)
+            self.widget_group.render(self.main_window, self.time)
 
             pygame.display.flip()
             clock.tick(60)

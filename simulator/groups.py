@@ -5,6 +5,7 @@ from pygame.sprite import Group, Sprite
 from math import pi
 
 import events
+import config
 from physics import Vector, Physics
 from simobjects import SimRocketObject, SimPlanetaryObject
 from config import FONT_PATH
@@ -100,5 +101,6 @@ class WidgetGroup(Group):
         self.font = pygame.font.Font(FONT_PATH, 17)
 
     def render(self, screen, time: float):
-        for widget in self.sprites():
-            widget.render(screen, self.font, time)
+        if config.draw_widgets:
+            for widget in self.sprites():
+                widget.render(screen, self.font, time)
