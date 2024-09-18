@@ -13,8 +13,8 @@ if __name__ == '__main__':
     moon = Planet(7.346E22, Point((384E6, 0)), Vector((0.0, 1.022E3)), 1737E3, 0)
     rocket = BaseRocket(100, Point((7.371E6, 0)), Vector((0.0, 4.35E3)))
 
-    logger = LoggerWidget()
-    clockwidget = ClockWidget()
+    logger_widget = LoggerWidget()
+    clock_widget = ClockWidget()
 
     earth_sprite = SimPlanetaryObject(earth, pygame.Color("deepskyblue"), name="Earth")
     moon_sprite = SimPlanetaryObject(moon, pygame.Color("white"), name="Moon")
@@ -27,6 +27,6 @@ if __name__ == '__main__':
             RotatingGroup(earth_sprite, moon_sprite),
             MoveGroup(earth_sprite, moon_sprite, rocket_sprite),
         ),
-        widgets=(logger, clockwidget)
+        widgets=(logger_widget, clock_widget)
     )
     simulation.run()
