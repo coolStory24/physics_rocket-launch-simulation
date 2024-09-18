@@ -21,7 +21,7 @@ class ConsoleLoggerWidget(Widget):
         super().__init__()
 
     def handle_event(self, event):
-        print(event.to_string())
+        print(event)
 
     def render(self, screen, font, simtime: float):
         pass
@@ -33,7 +33,7 @@ class LoggerWidget(Widget):
         self.event_strings = []
 
     def handle_event(self, event):
-        event_string = event.to_string()
+        event_string = str(event)
         self.event_strings.append(event_string)
 
     def render(self, screen, font, simtime: float):
