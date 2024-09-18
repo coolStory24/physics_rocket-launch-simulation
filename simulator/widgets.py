@@ -15,7 +15,8 @@ class Widget(Sprite):
 class LoggerWidget(Widget, events.EventSubscriber):
     def __init__(self):
         Widget.__init__(self)
-        events.EventSubscriber.__init__(self, events.Event)
+        events.EventSubscriber.__init__(self)
+        self.subscribe(events.Event)
         self.event_strings = []
 
     def handle_event(self, event):
