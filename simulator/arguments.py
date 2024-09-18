@@ -13,16 +13,18 @@ def configure():
     parser.add_argument("-v", "--verbose", help="Verbose", action=argparse.BooleanOptionalAction)
     parser.add_argument("-m", "--show-markers", help="Disable text markers in start", action=argparse.BooleanOptionalAction)
     parser.add_argument("-w", "--show-widgets", help="Disable interface widgets in start", action=argparse.BooleanOptionalAction)
+    parser.add_argument("-g", "--build-graphics", help="Build graphics", action=argparse.BooleanOptionalAction)
     parser.add_argument("-f", "--font-path", help="Set path to font .ttf file")
     parser.add_argument("-s", "--font-size", help="Set font size")
     parser.add_argument("--widget-margin", help="Set widget margin")
-    parser.add_argument("-t", "--time_scale", help="Set time scale")
+    parser.add_argument("-t", "--time-scale", help="Set time scale")
 
     args = parser.parse_args()
 
     config.draw_markers = args.show_markers if args.show_markers is not None else config.draw_markers
     config.draw_widgets = args.show_widgets if args.show_widgets is not None else config.draw_widgets
     config.VERBOSE = args.verbose if args.verbose is not None else config.VERBOSE
+    config.BUILD_GRAPHICS = args.build_graphics if args.build_graphics is not None else config.BUILD_GRAPHICS
     config.FONT_PATH = args.font_path if args.font_path is not None else config.FONT_PATH
     config.FONT_SIZE = int(args.font_size) if args.font_size is not None else config.FONT_SIZE
     config.WIDGET_MARGIN = int(args.widget_margin) if args.widget_margin is not None else config.WIDGET_MARGIN
