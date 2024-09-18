@@ -7,7 +7,6 @@ from math import pi
 import config
 from physics import Vector, Physics
 from simobjects import SimRocketObject, SimPlanetaryObject
-from config import FONT_PATH
 from events import RocketEvent, EventRegistrer, CollisionEvent
 
 
@@ -90,7 +89,7 @@ class RenderGroup(Group):
     def __init__(self, *sprites):
         super().__init__(*sprites)
         pygame.font.init()
-        self.font = pygame.font.Font(FONT_PATH, 17)
+        self.font = pygame.font.Font(config.FONT_PATH, config.FONT_SIZE)
 
     def render(self, screen, scale: float, offset: Vector):
         for entity in self.sprites():
@@ -101,7 +100,7 @@ class WidgetGroup(Group):
     def __init__(self, *sprites):
         super().__init__(*sprites)
         pygame.font.init()
-        self.font = pygame.font.Font(FONT_PATH, 17)
+        self.font = pygame.font.Font(config.FONT_PATH, config.FONT_SIZE)
 
     def render(self, screen, time: float):
         if config.draw_widgets:

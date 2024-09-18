@@ -1,7 +1,8 @@
 from pygame.sprite import Sprite
 
+import events
+import config
 from logger import Logger
-from config import WIDGET_MARGIN
 
 
 class Widget(Sprite):
@@ -24,8 +25,8 @@ class LoggerWidget(Widget, Logger):
 
     def render(self, screen, font, simtime: float):
         event_texts = [font.render(text, True, "White") for text in self.event_strings]
-        x = screen.get_width() - WIDGET_MARGIN
-        y = screen.get_height() - WIDGET_MARGIN
+        x = screen.get_width() - config.WIDGET_MARGIN
+        y = screen.get_height() - config.WIDGET_MARGIN
 
         for text in reversed(event_texts):
             screen.blit(text, (x - text.get_width(), y - text.get_height()))
@@ -43,4 +44,4 @@ class ClockWidget(Widget):
         days = int(simtime // 3600 // 24)
         to_print = f"Time passed since simulation start: {days} days {hours}h {"0" if minutes < 10 else ""}{minutes}m"
         text = font.render(to_print, True, "White")
-        screen.blit(text, (screen.get_width() - text.get_width() - WIDGET_MARGIN, WIDGET_MARGIN))
+        screen.blit(text, (screen.get_width() - text.get_width() - config.WIDGET_MARGIN, config.WIDGET_MARGIN))

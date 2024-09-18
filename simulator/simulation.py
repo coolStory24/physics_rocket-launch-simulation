@@ -7,6 +7,7 @@ from groups import RenderGroup, PhysicsGroup, WidgetGroup
 from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
 from widgets import LoggerWidget, ClockWidget
+from logger import ConsoleLogger
 
 
 class Simulation:
@@ -29,6 +30,9 @@ class Simulation:
         logger_widget = LoggerWidget()
         clock_widget = ClockWidget()
         self.widget_group = WidgetGroup(logger_widget, clock_widget)
+
+        if config.VERBOSE:
+            self.console_logger = ConsoleLogger()
 
     def update_pixels_per_meter(self, center: Vector, delta: float):
         # recalculating offset to keep center in the same position on the screen
