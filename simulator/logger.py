@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 
 import events
+import config
 from events import EventSubscriber
 
 
@@ -27,7 +28,7 @@ class RocketTracker(EventSubscriber):
     def handle_event(self, event):
         if isinstance(event, events.RocketEvent):
             self.data.append(event)
-        elif isinstance(event, events.CollisionEvent):
+        elif isinstance(event, events.CollisionEvent) and config.BUILD_GRAPHICS:
             self.build_graph()
 
     def build_graph(self):
