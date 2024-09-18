@@ -24,7 +24,7 @@ class SimObject(Sprite):
         screen.blit(text, (x - text.get_width() / 2, y -
                     marker_vertical_offset - text.get_height()))
 
-    def draw(self, screen, scale: float, offset: Vector):
+    def draw(self, screen, scale: float, offset: Vector, font):
         raise NotImplementedError()
 
 
@@ -51,7 +51,7 @@ class SimRocketObject(SimObject):
 
     def draw(self, screen, scale: float, offset: Vector, font):
         if not isinstance(self.entity, BaseRocket):
-            raise ValueError("Entity is not a Round Rocket")
+            raise ValueError("Entity is not a Rocket")
         pygame.draw.circle(
             screen, self.color, self.get_centre_on_screen(scale, offset),
             config.ROCKET_MARKER_SIZE

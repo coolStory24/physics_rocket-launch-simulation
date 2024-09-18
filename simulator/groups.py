@@ -4,10 +4,10 @@ import math
 from pygame.sprite import Group, Sprite
 from math import pi
 
-import events
 import config
 from physics import Vector, Physics
 from simobjects import SimRocketObject, SimPlanetaryObject
+from events import RocketEvent, EventRegistrer, CollisionEvent
 
 
 class PhysicsGroup(Group):
@@ -44,11 +44,14 @@ class MoveGroup(PhysicsGroup):
 class SmartGroup(PhysicsGroup):
     def __init__(self, *sprites: SimRocketObject):
         super().__init__(*sprites)
+        self.time = 0
 
     def update(self, delta_time: float):
+        self.time += delta_time
         rockets = [sprite.entity for sprite in self.sprites()]
         for rocket in rockets:
             rocket.make_decision(delta_time)
+            EventRegistrer.register_event(RocketEvent(self.time, rocket.speed.copy(), rocket.position))
 
 
 class CollisionGroup(PhysicsGroup):
@@ -67,7 +70,7 @@ class CollisionGroup(PhysicsGroup):
                     landing_angle_absolute = Vector(planet.entity.position, rocket.entity.position).polar_angle
                     landing_angle_relative = (landing_angle_absolute - planet.entity.polar_angle) % (2 * math.pi)
                     finite_speed_magnitude = (rocket.entity.speed - planet.entity.speed).magnitude
-                    events.EventRegistrer.register_event(events.CollisionEvent(self.time, planet, rocket, landing_angle_relative, finite_speed_magnitude))
+                    EventRegistrer.register_event(CollisionEvent(self.time, planet, rocket, landing_angle_relative, finite_speed_magnitude))
                     rocket.kill()
 
 
