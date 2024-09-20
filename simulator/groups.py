@@ -95,6 +95,9 @@ class RenderGroup(Group):
         for entity in self.sprites():
             entity.draw(screen, scale, offset, self.font)
 
+        for entity in self.sprites():
+            entity.draw_text_marker(screen, scale, offset, self.font)
+
 
 class WidgetGroup(Group):
     def __init__(self, *sprites):

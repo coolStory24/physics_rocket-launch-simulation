@@ -40,9 +40,9 @@ class SimPlanetaryObject(SimObject):
             max(int(self.entity.radius * scale), config.MIN_PLANETARY_SIZE)
         )
 
+    def draw_text_marker(self, screen, scale: float, offset: Vector, font):
         if config.draw_markers:
-            self.draw_text_marker(screen, scale, offset, font,
-                                  self.entity.radius * scale)
+            SimObject.draw_text_marker(self, screen, scale, offset, font, self.entity.radius * scale)
 
 
 class SimRocketObject(SimObject):
@@ -56,6 +56,3 @@ class SimRocketObject(SimObject):
             screen, self.color, self.get_centre_on_screen(scale, offset),
             config.ROCKET_MARKER_SIZE
         )
-
-        if config.draw_markers:
-            self.draw_text_marker(screen, scale, offset, font)
