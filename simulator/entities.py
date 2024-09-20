@@ -69,8 +69,7 @@ class VerticalTakeOffRocket(BaseRocket):
 
     def phase_land(self, delta_time: float):
         gravity_force_vector = Physics.calculate_gravity(self, self.planet)
-        if self.deceleration_value is None:
-            self.deceleration_value = self.speed.magnitude ** 2 / (2 * self.get_height())
+        self.deceleration_value = self.speed.magnitude ** 2 / (2 * self.get_height())
 
         thrust_value = self.weight * self.deceleration_value + gravity_force_vector.magnitude
         thrust_vector = Vector(self.planet.position, self.position).normalize() * thrust_value
