@@ -10,11 +10,16 @@ class Planet(Entity):
 
 
 class BaseRocket(Entity):
-    def __init__(self, weight, position: Point, speed: Vector):
+    def __init__(self, weight, payload_weight, position: Point, speed: Vector, fuel_speed: float):
         super().__init__(weight, position, speed)
+        self.payload_weight = payload_weight
+        self.fuel_speed = fuel_speed
 
-    def fire_engine(self, engine_force_vector: Vector):
-        self.force += engine_force_vector
+    def fire_engine(self, engine_force_vector: Vector, delta_time: float):
+        next_weight = self.weight - engine_force_vector.magnitude * delta_time / self.fuel_speed
+        if next_weight >= self.payload_weight:
+            self.force += engine_force_vector
+            self.weight = next_weight
 
     def make_decision(self, delta_time: float):
         pass
@@ -24,8 +29,9 @@ class VerticalTakeOffRocket(BaseRocket):
     # 1. Take off while maintaining certain acceleration
     # 2. Turn off engines, wait to fly to the desired height
     # 3. Once reached the pre-determined height, activate deceleration engines
-    def __init__(self, weight, position: Point, speed: Vector, planet: Planet, target_height: float=250000, target_acceleration=9.8 * 1, engine_firing_height: float=90000):
-        super().__init__(weight, position, speed)
+    def __init__(self, weight, payload_weight, position: Point, speed: Vector, planet: Planet,
+                 target_height: float=250000, target_acceleration=9.8 * 1, engine_firing_height: float=90000, fuel_speed : float = 3000):
+        super().__init__(weight, payload_weight, position, speed, fuel_speed)
         self.planet = planet
         # maximum height, that the rocket should reach
         self.target_height = target_height
@@ -53,7 +59,7 @@ class VerticalTakeOffRocket(BaseRocket):
             gravity_force_vector = Physics.calculate_gravity(self, self.planet)
             normalized_target_acceleration_vector = Vector(self.planet.position, self.position).normalize()
             thrust_vector = normalized_target_acceleration_vector * self.weight * self.target_acceleration_value - gravity_force_vector
-            self.fire_engine(thrust_vector)
+            self.fire_engine(thrust_vector, delta_time)
         else:
             self.phase = self.phase_wait
 
@@ -63,8 +69,7 @@ class VerticalTakeOffRocket(BaseRocket):
 
     def phase_land(self, delta_time: float):
         gravity_force_vector = Physics.calculate_gravity(self, self.planet)
-        if self.deceleration_value is None:
-            self.deceleration_value = self.speed.magnitude ** 2 / (2 * self.get_height())
+        self.deceleration_value = self.speed.magnitude ** 2 / (2 * self.get_height())
 
         thrust_value = self.weight * self.deceleration_value + gravity_force_vector.magnitude
         thrust_vector = Vector(self.planet.position, self.position).normalize() * thrust_value
@@ -77,7 +82,7 @@ class VerticalTakeOffRocket(BaseRocket):
         current_absolute_height = Physics.calculate_distance(self.position, self.planet.position)
         if new_absolute_height > current_absolute_height:
             self.phase = None
-        self.fire_engine(thrust_vector)
+        self.fire_engine(thrust_vector, delta_time)
 
     def make_decision(self, delta_time: float):
         if self.phase is not None:
