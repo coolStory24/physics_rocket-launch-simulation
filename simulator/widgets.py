@@ -42,6 +42,6 @@ class ClockWidget(Widget):
         minutes = int(simtime // 60 % 60)
         hours = int(simtime // 3600 % 24)
         days = int(simtime // 3600 // 24)
-        to_print = f"Time passed since simulation start: {days} days {hours}h {"0" if minutes < 10 else ""}{minutes}m"
+        to_print = f"Time passed since simulation start: {days} days {"0" if hours < 10 else ""}{hours}h {"0" if minutes < 10 else ""}{minutes}m"
         text = font.render(to_print, True, "White")
         screen.blit(text, (screen.get_width() - text.get_width() - config.WIDGET_MARGIN, config.WIDGET_MARGIN))
