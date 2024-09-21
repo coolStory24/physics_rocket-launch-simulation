@@ -17,12 +17,14 @@ class SimObject(Sprite):
         return (self.entity.position.x * scale + offset.x,
                 self.entity.position.y * scale + offset.y)
 
-    def draw_text_marker(self, screen, scale: float, offset: Vector, font, marker_vertical_offset: float = 0):
+    def _draw_text_marker(self, screen, scale: float, offset: Vector, font, marker_vertical_offset: float = 0):
         text = font.render(self.name, True, self.color)
-        text_size = text.get_width()
         x, y = self.get_centre_on_screen(scale, offset)
         screen.blit(text, (x - text.get_width() / 2, y -
                     marker_vertical_offset - text.get_height()))
+
+    def draw_text_marker(self, screen, scale: float, offset: Vector, font):
+        self._draw_text_marker(screen, scale, offset, font, 0)
 
     def draw(self, screen, scale: float, offset: Vector, font):
         raise NotImplementedError()
@@ -42,7 +44,7 @@ class SimPlanetaryObject(SimObject):
 
     def draw_text_marker(self, screen, scale: float, offset: Vector, font):
         if config.draw_markers:
-            SimObject.draw_text_marker(self, screen, scale, offset, font, self.entity.radius * scale)
+            self._draw_text_marker(screen, scale, offset, font, self.entity.radius * scale)
 
 
 class SimRocketObject(SimObject):
