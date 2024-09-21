@@ -92,11 +92,12 @@ class RenderGroup(Group):
         self.font = pygame.font.Font(config.FONT_PATH, config.FONT_SIZE)
 
     def render(self, screen, scale: float, offset: Vector):
-        for entity in self.sprites():
-            entity.draw(screen, scale, offset, self.font)
+        for sprite in self.sprites():
+            sprite.draw(screen, scale, offset, self.font)
 
-        for entity in self.sprites():
-            entity.draw_text_marker(screen, scale, offset, self.font)
+        if config.draw_markers:
+            for sprite in self.sprites():
+                sprite.draw_text_marker(screen, scale, offset, self.font)
 
 
 class WidgetGroup(Group):
