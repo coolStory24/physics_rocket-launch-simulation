@@ -1,4 +1,6 @@
-from entities import Planet, BaseRocket
+import math
+
+from entities import Planet, BaseRocket, Orbit
 from physics import Physics, Vector, Point, Entity
 
 
@@ -65,6 +67,52 @@ class VerticalTakeOffRocket(BaseRocket):
         if new_absolute_height > current_absolute_height:
             self.phase = None
         self.fire_engine(thrust_vector, delta_time)
+
+    def make_decision(self, delta_time: float):
+        if self.phase is not None:
+            self.phase(delta_time)
+
+
+class OrbitalManeuverRocket(BaseRocket):
+    def __init__(self, weight, payload_weight, planet: Planet, target_orbit: Orbit, initial_position: Point, initial_speed: Vector, maneuver_acceleration: float = 2.0 * 9.8, fuel_speed: float = 3000):
+        super().__init__(weight, payload_weight, planet, 0, fuel_speed)
+        self.position = initial_position
+        self.speed = initial_speed
+        self.target_orbit = target_orbit
+        self.planet = planet
+        self.maneuver_acceleration = maneuver_acceleration
+        self.maneuver_angle = target_orbit.polar_angle
+        self.phase = self.phase_wait
+
+    def get_true_anomaly(self):
+        position_vector = Vector(self.planet.position, self.position)
+        angle = math.atan2(position_vector.y, position_vector.x)
+        if angle < 0:
+            angle += 2 * math.pi
+        return angle
+
+    def phase_wait(self, delta_time: float):
+        current_true_anomaly = self.get_true_anomaly()
+
+        if abs(current_true_anomaly - self.maneuver_angle) < 0.01:
+            self.phase = self.phase_perform_maneuver
+
+    def phase_perform_maneuver(self, delta_time: float):
+        target_perigee = self.target_orbit.perigee_distance
+        target_apogee = self.target_orbit.semi_major_axis * 2 - target_perigee
+
+        target_speed = math.sqrt(2 * Physics.G * self.planet.weight * target_apogee / (target_perigee * (target_perigee + target_apogee)))
+
+        delta_v_required = target_speed - self.speed.magnitude
+
+        delta_v_actual = min(delta_v_required, self.maneuver_acceleration * delta_time)
+
+        thrust_vector = self.speed.normalize() * (self.weight * delta_v_actual / delta_time)
+
+        self.fire_engine(thrust_vector, delta_time)
+
+        if delta_v_required <= delta_v_actual:
+            self.phase = None
 
     def make_decision(self, delta_time: float):
         if self.phase is not None:
