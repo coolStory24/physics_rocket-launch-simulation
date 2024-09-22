@@ -1,4 +1,6 @@
-from physics import Entity, Physics, Point, Vector
+import math
+
+from physics import Entity, Point, Vector, Physics
 
 
 class Planet(Entity):
@@ -8,9 +10,14 @@ class Planet(Entity):
         self.polar_angle = 0
         self.angle_speed = angle_speed
 
+    def surface_speed(self, polar_angle: float):
+        return Vector.make_vector_by_polar_angle(polar_angle + math.pi / 2, 2 * math.pi * self.angle_speed * self.radius)
+
 
 class BaseRocket(Entity):
-    def __init__(self, weight, payload_weight, position: Point, speed: Vector, fuel_speed: float):
+    def __init__(self, weight, payload_weight, planet: Planet, polar_angle: float, fuel_speed: float):
+        position = planet.position + Vector.make_vector_by_polar_angle(polar_angle, planet.radius + 1)
+        speed = planet.surface_speed(polar_angle) + planet.speed
         super().__init__(weight, position, speed)
         self.payload_weight = payload_weight
         self.fuel_speed = fuel_speed
@@ -29,9 +36,9 @@ class VerticalTakeOffRocket(BaseRocket):
     # 1. Take off while maintaining certain acceleration
     # 2. Turn off engines, wait to fly to the desired height
     # 3. Once reached the pre-determined height, activate deceleration engines
-    def __init__(self, weight, payload_weight, position: Point, speed: Vector, planet: Planet,
+    def __init__(self, weight, payload_weight, planet: Planet, polar_angle: float,
                  target_height: float=250000, target_acceleration=9.8 * 1, engine_firing_height: float=90000, fuel_speed : float = 3000):
-        super().__init__(weight, payload_weight, position, speed, fuel_speed)
+        super().__init__(weight, payload_weight, planet, polar_angle, fuel_speed)
         self.planet = planet
         # maximum height, that the rocket should reach
         self.target_height = target_height
@@ -42,11 +49,16 @@ class VerticalTakeOffRocket(BaseRocket):
         self.engine_firing_height = engine_firing_height
         self.deceleration_value = None
 
+    @property
+    def takeoff_speed(self):
+        normalized_target_acceleration_vector = Vector(self.planet.position, self.position).normalize()
+        return normalized_target_acceleration_vector * Vector.scalar_mul(normalized_target_acceleration_vector, self.speed - self.planet.speed)
+
     def get_height(self):
         return Physics.calculate_distance(self.position, self.planet.position) - self.planet.radius
 
     def should_stop_ascending(self):
-        current_kinetic_energy = self.weight * self.speed.magnitude ** 2 / 2
+        current_kinetic_energy = self.weight * self.takeoff_speed.magnitude ** 2 / 2
         k = Physics.G * self.planet.weight * self.weight
         current_height = self.get_height()
         potential_energy = -1 * k / (self.planet.radius + self.target_height) - -1 * k / (self.planet.radius + current_height)
@@ -69,7 +81,7 @@ class VerticalTakeOffRocket(BaseRocket):
 
     def phase_land(self, delta_time: float):
         gravity_force_vector = Physics.calculate_gravity(self, self.planet)
-        self.deceleration_value = self.speed.magnitude ** 2 / (2 * self.get_height())
+        self.deceleration_value = self.takeoff_speed.magnitude ** 2 / (2 * self.get_height())
 
         thrust_value = self.weight * self.deceleration_value + gravity_force_vector.magnitude
         thrust_vector = Vector(self.planet.position, self.position).normalize() * thrust_value
@@ -77,7 +89,7 @@ class VerticalTakeOffRocket(BaseRocket):
         # calculate presumable speed considering engine thrust after the next simulation speed
         new_force = gravity_force_vector + thrust_vector
         new_acceleration = new_force / self.weight
-        new_position = self.position + self.speed * delta_time + new_acceleration * delta_time ** 2 / 2
+        new_position = self.position + self.takeoff_speed * delta_time + new_acceleration * delta_time ** 2 / 2
         new_absolute_height = Physics.calculate_distance(new_position, self.planet.position)
         current_absolute_height = Physics.calculate_distance(self.position, self.planet.position)
         if new_absolute_height > current_absolute_height:

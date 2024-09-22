@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     earth = Planet(5.972E24, Point((0, 0)), Vector((0, 0)), 6371E3, math.pi / 12 / 60 / 60)
     moon = Planet(7.346E22, Point((384E6, 0)), Vector((0.0, 1.022E3)), 1737E3, 0)
-    rocket = VerticalTakeOffRocket(2E5, 200, Point((6371E3, 0)), Vector((0, 0)), earth)
+    rocket = VerticalTakeOffRocket(2E5, 200, earth, 0)
     earth_sprite = SimPlanetaryObject(earth, pygame.Color("deepskyblue"), name="Earth")
     moon_sprite = SimPlanetaryObject(moon, pygame.Color("white"), name="Moon")
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
