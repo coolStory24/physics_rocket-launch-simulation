@@ -30,3 +30,48 @@ class BaseRocket(Entity):
 
     def make_decision(self, delta_time: float):
         pass
+
+
+class Orbit:
+    def __init__(self, planet: Planet, perigee_height: float, eccentricity: float, polar_angle: float):
+        self.planet = planet
+        self.perigee_height = perigee_height
+        self.eccentricity = eccentricity
+        self.polar_angle = polar_angle
+        self.perigee_distance = planet.radius + perigee_height
+        self.semi_major_axis = self.perigee_distance / (1 - eccentricity)
+        self.semi_minor_axis = self.semi_major_axis * math.sqrt(1 - eccentricity ** 2)
+
+    @staticmethod
+    def calculate_orbit(planet: Planet, entity: Entity):
+        # Gravitational parameter μ = G * planet_mass
+        mu = Physics.G * planet.weight
+
+        # Distance between the planet and the entity
+        r = Vector(planet.position, entity.position)
+
+        v = entity.speed.magnitude
+
+        # Specific orbital energy
+        epsilon = (v ** 2) / 2 - (mu / r.magnitude)
+
+        # Semi-major axis
+        semi_major_axis = -mu / (2 * epsilon)
+
+        # Angular momentum vector h = r x v
+        angular_momentum = r.cross_product(entity.speed)
+        h = angular_momentum
+
+        # Eccentricity vector
+        eccentricity_vector = (entity.speed * (angular_momentum / mu)) - (r / r.magnitude)
+
+        # Eccentricity e
+        eccentricity = math.sqrt(1 + (2 * epsilon * h ** 2) / mu ** 2)
+
+        # Perigee distance
+        perigee_distance = semi_major_axis * (1 - eccentricity)
+        perigee_height = perigee_distance - planet.radius
+
+        polar_angle = math.atan2(eccentricity_vector.y, eccentricity_vector.x)
+
+        return Orbit(planet, perigee_height, eccentricity, polar_angle)

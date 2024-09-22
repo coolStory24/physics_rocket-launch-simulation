@@ -1,6 +1,5 @@
 from pygame.sprite import Sprite
 
-import events
 import config
 from logger import Logger
 

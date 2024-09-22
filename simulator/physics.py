@@ -43,6 +43,10 @@ class Vector:
     def copy(self):
         return Vector(self._coordinates)
 
+    def cross_product(self, other):
+        if len(other.coordinates) == 2 and len(self._coordinates) == 2:
+            return self.coordinates[0] * other.coordinates[1] - self.coordinates[1] * other.coordinates[0]
+
     @property
     def coordinates(self):
         return tuple(self._coordinates)
