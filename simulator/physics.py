@@ -34,6 +34,9 @@ class Vector:
     def __getitem__(self, item: int):
         return self._coordinates[item]
 
+    def __len__(self):
+        return len(self.coordinates)
+
     def __repr__(self):
         return f"Vector({self._coordinates})"
 
@@ -66,7 +69,23 @@ class Vector:
 
     @property
     def polar_angle(self):
-        return math.atan2(self.y, self.x)
+        return math.atan2(self.y, self.x) % (math.pi * 2)
+
+    @staticmethod
+    def make_vector_by_polar_angle(polar_angle: float, magnitude: float):
+        x = magnitude * math.cos(polar_angle)
+        y = magnitude * math.sin(polar_angle)
+        return Vector((x, y))
+
+    @staticmethod
+    def scalar_mul(a, b):
+        if len(a) != len(b):
+            raise ValueError("Multipliable vectors must be same dimension")
+
+        res = 0
+        for i in range(len(a)):
+            res += a[i] * b[i]
+        return res
 
 
 class Point:
