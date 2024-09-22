@@ -3,12 +3,13 @@ import math
 
 import config
 from arguments import configure
-from entities import Planet, VerticalTakeOffRocket
+from entities import Planet
 from physics import Vector, Point
 from groups import GravityGroup, MoveGroup, CollisionGroup, SmartGroup, RotatingGroup
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
+from rockets import VerticalTakeOffRocket
 
 if __name__ == '__main__':
     configure()
