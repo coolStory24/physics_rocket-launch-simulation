@@ -22,7 +22,7 @@ class VerticalTakeOffRocket(BaseRocket):
     @property
     def takeoff_speed(self):
         normalized_target_acceleration_vector = Vector(self.planet.position, self.position).normalize()
-        return normalized_target_acceleration_vector * Vector.scalar_mul(normalized_target_acceleration_vector, self.speed - self.planet.speed)
+        return normalized_target_acceleration_vector * Vector.dot_product(normalized_target_acceleration_vector, self.speed - self.planet.speed)
 
     def get_height(self):
         return Physics.calculate_distance(self.position, self.planet.position) - self.planet.radius

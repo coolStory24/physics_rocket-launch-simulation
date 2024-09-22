@@ -77,16 +77,6 @@ class Vector:
         y = magnitude * math.sin(polar_angle)
         return Vector((x, y))
 
-    @staticmethod
-    def scalar_mul(a, b):
-        if len(a) != len(b):
-            raise ValueError("Multipliable vectors must be same dimension")
-
-        res = 0
-        for i in range(len(a)):
-            res += a[i] * b[i]
-        return res
-
 
 class Point:
     def __init__(self, coordinates):
