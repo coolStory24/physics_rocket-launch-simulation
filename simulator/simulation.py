@@ -57,13 +57,11 @@ class Simulation:
             self.offset += Vector(pygame.mouse.get_rel())
 
         if event.type == pygame.KEYDOWN:
-            # widgets
             if event.key == pygame.K_c:
                 config.draw_markers = not config.draw_markers
             if event.key == pygame.K_h:
                 config.draw_widgets = not config.draw_widgets
 
-            # plots
             if event.key == pygame.K_p:
                 EventRegistrer.register_event(BuildPlotsEvent())
 

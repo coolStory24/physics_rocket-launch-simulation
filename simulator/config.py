@@ -8,7 +8,7 @@ FONT_SIZE = 27
 WIDGET_MARGIN = 10
 TIME_SCALE = 1E1
 VERBOSE = False
-BUILD_GRAPHICS = True
+BUILD_GRAPHICS = False
 
 draw_markers = True
 draw_widgets = True
