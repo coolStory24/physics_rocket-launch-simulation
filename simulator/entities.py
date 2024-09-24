@@ -11,7 +11,7 @@ class Planet(Entity):
         self.angle_speed = angle_speed
 
     def surface_speed(self, polar_angle: float):
-        return Vector.make_vector_by_polar_angle(polar_angle + math.pi / 2, 2 * math.pi * self.angle_speed * self.radius)
+        return Vector.make_vector_by_polar_angle(polar_angle + math.pi / 2, self.angle_speed * self.radius)
 
 
 class BaseRocket(Entity):
