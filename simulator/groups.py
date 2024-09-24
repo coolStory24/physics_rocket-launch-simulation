@@ -51,7 +51,7 @@ class SmartGroup(PhysicsGroup):
         rockets = [sprite.entity for sprite in self.sprites()]
         for rocket in rockets:
             rocket.make_decision(delta_time)
-            EventRegistrer.register_event(RocketEvent(self.time, rocket.speed.copy(), rocket.position))
+            EventRegistrer.register_event(RocketEvent(self.time, rocket.speed.copy(), rocket.position, rocket.planet.position))
 
 
 class CollisionGroup(PhysicsGroup):

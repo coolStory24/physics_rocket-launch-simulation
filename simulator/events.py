@@ -69,7 +69,13 @@ class CollisionEvent(LogableEvent):
         return self.str_prefix() + f"{self.rocket.name} has fallen on {self.planet.name} at {self.collision_angle:.3f} with speed {self.finite_speed:.3f} m/s"
 
 class RocketEvent(Event):
-    def __init__(self, time, speed: Vector, position: Point):
+    def __init__(self, time, speed: Vector, position: Point, planet_position: Point):
         super().__init__(time, store=False)
         self.speed = speed
         self.position = position
+        self.planet_position = planet_position
+
+
+class BuildPlotsEvent(Event):
+    def __init__(self):
+        super().__init__(0, False)
