@@ -41,6 +41,8 @@ class Orbit:
         self.perigee_distance = planet.radius + perigee_height
         self.semi_major_axis = self.perigee_distance / (1 - eccentricity)
         self.semi_minor_axis = self.semi_major_axis * math.sqrt(1 - eccentricity ** 2)
+        self.apogee_distance = self.semi_major_axis * 2 - self.perigee_distance
+        self.apogee_height = self.apogee_distance - self.planet.radius
 
     @staticmethod
     def calculate_orbit(planet: Planet, entity: Entity):

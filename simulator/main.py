@@ -9,14 +9,14 @@ from groups import GravityGroup, MoveGroup, CollisionGroup, SmartGroup, Rotating
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
-from rockets import OrbitalManeuverRocket
+from rockets import OrbitalManeuverRocket, VerticalTakeOffRocket
 
 if __name__ == '__main__':
     configure()
 
     earth = Planet(5.972E24, Point((0, 0)), Vector((0, 0)), 6371E3, math.pi / 12 / 60 / 60)
     moon = Planet(7.346E22, Point((384E6, 0)), Vector((0.0, 1.022E3)), 1737E3, 0)
-    rocket = OrbitalManeuverRocket(2E5, 200, earth, Orbit(earth, 800000, 0.1, math.pi / 2), Point((earth.radius + 800000, 0)), Vector((0.0, 7455.433488089637)))
+    rocket = VerticalTakeOffRocket(2E5, 200, earth, 0)
     earth_sprite = SimPlanetaryObject(earth, pygame.Color("deepskyblue"), name="Earth")
     moon_sprite = SimPlanetaryObject(moon, pygame.Color("white"), name="Moon")
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
