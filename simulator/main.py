@@ -9,8 +9,7 @@ from groups import GravityGroup, MoveGroup, CollisionGroup, SmartGroup, Rotating
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
-from rockets import OrbitalManeuverRocket
-from simulator.rockets import VerticalTakeOffRocket
+from rockets import OrbitalManeuverRocket, VerticalTakeOffRocket
 
 if __name__ == '__main__':
     configure()
