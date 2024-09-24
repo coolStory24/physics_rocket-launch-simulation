@@ -1,7 +1,7 @@
 import math
 
 from entities import Planet, BaseRocket, Orbit
-from physics import Physics, Vector, Point, Entity
+from physics import Physics, Vector, Point
 
 
 class VerticalTakeOffRocket(BaseRocket):
@@ -30,13 +30,7 @@ class VerticalTakeOffRocket(BaseRocket):
         return Physics.calculate_distance(self.position, self.planet.position) - self.planet.radius
 
     def should_stop_ascending(self):
-        current_kinetic_energy = self.weight * self.takeoff_speed.magnitude ** 2 / 2
-        k = Physics.G * self.planet.weight * self.weight
-        current_height = self.get_height()
-        potential_energy = -1 * k / (self.planet.radius + self.target_height) - -1 * k / (self.planet.radius + current_height)
-        if potential_energy < current_kinetic_energy:
-            return True
-        return False
+        return Orbit.calculate_orbit(self.planet, self).apogee_height >= self.target_height
 
     def phase_take_off(self, delta_time:float=0):
         if not self.should_stop_ascending():
