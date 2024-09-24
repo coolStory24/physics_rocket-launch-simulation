@@ -6,6 +6,7 @@ import config
 from groups import RenderGroup, PhysicsGroup, WidgetGroup
 from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
+from events import EventRegistrer, BuildPlotsEvent
 from widgets import LoggerWidget, ClockWidget
 from logger import ConsoleLogger
 
@@ -56,11 +57,15 @@ class Simulation:
             self.offset += Vector(pygame.mouse.get_rel())
 
         if event.type == pygame.KEYDOWN:
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_c]:
+            # widgets
+            if event.key == pygame.K_c:
                 config.draw_markers = not config.draw_markers
-            if keys[pygame.K_h]:
+            if event.key == pygame.K_h:
                 config.draw_widgets = not config.draw_widgets
+
+            # plots
+            if event.key == pygame.K_p:
+                EventRegistrer.register_event(BuildPlotsEvent())
 
         # window is resized
         if event.type == pygame.VIDEORESIZE:
