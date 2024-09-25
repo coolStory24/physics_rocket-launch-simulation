@@ -6,6 +6,7 @@ from math import pi
 
 import config
 from physics import Vector, Physics
+from entities import Planet, BaseRocket
 from simobjects import SimRocketObject, SimPlanetaryObject
 from events import RocketEvent, EventRegistrer, CollisionEvent
 
@@ -92,6 +93,11 @@ class RenderGroup(Group):
         self.font = pygame.font.Font(config.FONT_PATH, config.FONT_SIZE)
 
     def render(self, screen, scale: float, offset: Vector):
+        rockets = (sprite for sprite in self.sprites() if isinstance(sprite.entity, BaseRocket))
+
+        for rocket in rockets:
+            rocket.draw_orbit(screen, scale, offset)
+
         for sprite in self.sprites():
             sprite.draw(screen, scale, offset, self.font)
 
