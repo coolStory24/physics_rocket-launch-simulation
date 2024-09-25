@@ -1,7 +1,7 @@
 import math
 
 from entities import Planet, BaseRocket, Orbit
-from physics import Physics, Vector, Point
+from physics import Physics, Vector, Point, Entity
 
 
 class VerticalTakeOffRocket(BaseRocket):
@@ -166,18 +166,40 @@ class ComplexRocket(BaseRocket):
         self.fire_engine(thrust_vector, delta_time)
 
         if delta_v_required <= delta_v_actual:
-            self.phase = self.phase_wait_for_correction_maneuver
-
-    def phase_wait_for_correction_maneuver(self, delta_time: float):
-        if self.get_height() <= self.target_height:
             self.phase = self.phase_correct_orbit
 
+    def calculate_next_orbit(self, engine_force_vector: Vector, delta_time: float):
+        new_force = Physics.calculate_gravity(self, self.planet) + engine_force_vector
+        new_weight = self.weight - engine_force_vector.magnitude * delta_time / self.fuel_speed
+        new_acceleration = new_force / new_weight
+        new_position = self.position + self.speed * delta_time + new_acceleration * delta_time ** 2 / 2
+        new_speed = self.speed + new_acceleration * delta_time
+        return Orbit.calculate_orbit(self.planet, Entity(new_weight, new_position, new_speed))
+
+    def calculate_current_correction_maneuver_coefficient(self, delta_time: float, current_vector: Vector):
+        current_orbit = Orbit.calculate_orbit(self.planet, self)
+        current_distance = current_orbit.apogee_distance - current_orbit.perigee_distance
+        left = 0
+        right = 1
+        coefficient = 0.5
+        for i in range(10):
+            new_orbit = self.calculate_next_orbit(current_vector * coefficient, delta_time)
+            if new_orbit.apogee_distance - new_orbit.perigee_distance <= current_distance:
+                left = coefficient
+            else:
+                right = coefficient
+            coefficient = (left + right) / 2
+
+        return coefficient
+
     def phase_correct_orbit(self, delta_time: float):
-        normalized_correction_vector = Vector(self.planet.position, self.position).normalize()
-        self.fire_engine(normalized_correction_vector * (self.weight * (self.target_acceleration * delta_time) / delta_time), delta_time)
+        normalized_correction_vector = Vector(self.position, self.planet.position).normalize()
+        correction_vector = normalized_correction_vector * self.weight * self.target_acceleration
+        coefficient = self.calculate_current_correction_maneuver_coefficient(delta_time, correction_vector)
+        self.fire_engine(correction_vector * coefficient, delta_time)
+        if coefficient < 0.001:
+            self.phase = None
 
     def make_decision(self, delta_time: float):
-        orbit = Orbit.calculate_orbit(self.planet, self)
-        print(self.phase, self.get_height(), orbit.eccentricity, orbit.perigee_height, orbit.apogee_height)
         if self.phase is not None:
             self.phase(delta_time)
