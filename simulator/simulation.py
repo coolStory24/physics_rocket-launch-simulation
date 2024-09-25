@@ -6,8 +6,8 @@ import config
 from groups import RenderGroup, PhysicsGroup, WidgetGroup
 from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
-from events import EventRegistrer, BuildPlotsEvent
-from widgets import LoggerWidget, ClockWidget
+from events import EventRegistrer, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent
+from widgets import LoggerWidget, ClockWidget, TimeScaleWidget
 from logger import ConsoleLogger
 
 
@@ -30,7 +30,8 @@ class Simulation:
 
         logger_widget = LoggerWidget()
         clock_widget = ClockWidget()
-        self.widget_group = WidgetGroup(logger_widget, clock_widget)
+        time_scale_widget = TimeScaleWidget(self.paused, self.time_scale)
+        self.widget_group = WidgetGroup(logger_widget, clock_widget, time_scale_widget)
 
         if config.VERBOSE:
             self.console_logger = ConsoleLogger()
@@ -41,7 +42,7 @@ class Simulation:
 
         self.pixels_per_meter *= delta
 
-    def handle_event(self, event):
+    def handle_pygame_event(self, event):
         # change scale with mouse wheel
         if event.type == pygame.MOUSEWHEEL:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -64,6 +65,15 @@ class Simulation:
 
             if event.key == pygame.K_p:
                 EventRegistrer.register_event(BuildPlotsEvent())
+            if event.key == pygame.K_SPACE:
+                self.paused = not self.paused
+                EventRegistrer.register_event(PauseEvent(self.paused))
+            if event.key == pygame.K_LEFTBRACKET and self.time_scale / config.TIME_SCALE_DELTA >= 1:
+                self.time_scale /= config.TIME_SCALE_DELTA
+                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale))
+            if event.key == pygame.K_RIGHTBRACKET:
+                self.time_scale *= config.TIME_SCALE_DELTA
+                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale))
 
         # window is resized
         if event.type == pygame.VIDEORESIZE:
@@ -94,7 +104,7 @@ class Simulation:
         delta_time = 0.016
         clock = pygame.time.Clock()
 
-        while not self.paused:
+        while True:
             self.main_window.fill(pygame.Color("black"))
 
             for event in pygame.event.get():
@@ -102,14 +112,15 @@ class Simulation:
                     pygame.quit()
                     sys.exit()
                 else:
-                    self.handle_event(event)
+                    self.handle_pygame_event(event)
 
             self.process_keyboard()
 
-            for group in self.groups:
-                group.update(delta_time * self.time_scale)
+            if not self.paused:
+                for group in self.groups:
+                    group.update(delta_time * self.time_scale)
 
-            self.total_sim_time += delta_time * self.time_scale
+                self.total_sim_time += delta_time * self.time_scale
 
             self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
             self.widget_group.render(self.main_window, self.total_sim_time)
