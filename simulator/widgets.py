@@ -49,10 +49,11 @@ class ClockWidget(Widget):
 
 
 class TimeScaleWidget(Widget, EventSubscriber):
-    def __init__(self, is_paused, time_scale):
+    def __init__(self, is_paused, time_scale, amount_of_iterations):
         super().__init__()
         self.is_paused = is_paused
         self.time_scale = time_scale
+        self.amount_of_iterations = amount_of_iterations
         self.subscribe(PauseEvent)
         self.subscribe(TimeScaleUpdateEvent)
 
@@ -61,6 +62,7 @@ class TimeScaleWidget(Widget, EventSubscriber):
             self.is_paused = event.is_paused
         elif isinstance(event, TimeScaleUpdateEvent):
             self.time_scale = event.time_scale
+            self.amount_of_iterations = event.amount_of_iterations
         else:
             raise ValueError("Unsupported event")
 
@@ -68,5 +70,5 @@ class TimeScaleWidget(Widget, EventSubscriber):
         if self.is_paused:
             text = font.render("Paused!", True, "White")
         else:
-            text = font.render(f"X{int(self.time_scale)}", True, "White")
+            text = font.render(f"X{int(self.time_scale * self.amount_of_iterations)}", True, "White")
         screen.blit(text, (config.WIDGET_MARGIN, config.WIDGET_MARGIN))

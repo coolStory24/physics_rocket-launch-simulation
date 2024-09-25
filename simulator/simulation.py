@@ -13,13 +13,14 @@ from logger import ConsoleLogger
 
 class Simulation:
     def __init__(self, dimensions=(1920, 1080), offset = (960, 540), pixels_per_meter: float = 1E-5,
-                 time_scale: float = 1E3, groups=(), widgets=()):
+                 time_scale: float = 1E3, amount_of_iterations: float = 40, groups=(), widgets=()):
         self.width, self.height = dimensions
         self.main_window = None
         self.paused = False
         self.dragging = False
         self.pixels_per_meter = pixels_per_meter
         self.time_scale = time_scale
+        self.amount_of_iterations = amount_of_iterations
         self.total_sim_time = 0
 
         self.objects = {sprite for group in groups for sprite in group}
@@ -30,7 +31,7 @@ class Simulation:
 
         logger_widget = LoggerWidget()
         clock_widget = ClockWidget()
-        time_scale_widget = TimeScaleWidget(self.paused, self.time_scale)
+        time_scale_widget = TimeScaleWidget(self.paused, self.time_scale, self.amount_of_iterations)
         self.widget_group = WidgetGroup(logger_widget, clock_widget, time_scale_widget)
 
         if config.VERBOSE:
@@ -68,12 +69,12 @@ class Simulation:
             if event.key == pygame.K_SPACE:
                 self.paused = not self.paused
                 EventRegistrer.register_event(PauseEvent(self.paused))
-            if event.key == pygame.K_LEFTBRACKET and self.time_scale / config.TIME_SCALE_DELTA >= 1:
-                self.time_scale /= config.TIME_SCALE_DELTA
-                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale))
-            if event.key == pygame.K_RIGHTBRACKET:
-                self.time_scale *= config.TIME_SCALE_DELTA
-                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale))
+            if event.key == pygame.K_LEFTBRACKET and self.amount_of_iterations // config.TIME_SCALE_DELTA >= 1:
+                self.amount_of_iterations //= config.TIME_SCALE_DELTA
+                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale, self.amount_of_iterations))
+            if event.key == pygame.K_RIGHTBRACKET and self.amount_of_iterations * config.TIME_SCALE_DELTA <= config.MAX_AMOUNT_OF_ITERATIONS:
+                self.amount_of_iterations *= config.TIME_SCALE_DELTA
+                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale, self.amount_of_iterations))
 
         # window is resized
         if event.type == pygame.VIDEORESIZE:
@@ -101,7 +102,7 @@ class Simulation:
         pygame.init()
         self.main_window = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
         pygame.display.set_caption('Rocket Simulator')
-        delta_time = 0.016
+        delta_time = 1 / 60
         clock = pygame.time.Clock()
 
         while True:
@@ -117,10 +118,11 @@ class Simulation:
             self.process_keyboard()
 
             if not self.paused:
-                for group in self.groups:
-                    group.update(delta_time * self.time_scale)
+                for _ in range(self.amount_of_iterations):
+                    for group in self.groups:
+                        group.update(delta_time * self.time_scale)
 
-                self.total_sim_time += delta_time * self.time_scale
+                    self.total_sim_time += delta_time * self.time_scale
 
             self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
             self.widget_group.render(self.main_window, self.total_sim_time)

@@ -85,6 +85,7 @@ class PauseEvent(Event):
         self.is_paused = is_paused
 
 class TimeScaleUpdateEvent(Event):
-    def __init__(self, time_scale):
+    def __init__(self, time_scale, amount_of_iterations):
         super().__init__(0, False)
         self.time_scale = time_scale
+        self.amount_of_iterations = amount_of_iterations
