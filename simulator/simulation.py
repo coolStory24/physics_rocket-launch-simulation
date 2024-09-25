@@ -36,22 +36,11 @@ class Simulation(EventSubscriber):
         if config.VERBOSE:
             self.console_logger = ConsoleLogger()
 
-        self.subscribe(PauseEvent)
-        self.subscribe(TimeScaleUpdateEvent)
-
     def update_pixels_per_meter(self, center: Vector, delta: float):
         # recalculating offset to keep center in the same position on the screen
         self.offset = center - (center - self.offset) * delta
 
         self.pixels_per_meter *= delta
-
-    def handle_event(self, event):
-        if isinstance(event, PauseEvent):
-            self.paused = event.is_paused
-        elif isinstance(event, TimeScaleUpdateEvent):
-            self.time_scale = event.time_scale
-        else:
-            raise ValueError("Unsupported event")
 
     def handle_pygame_event(self, event):
         # change scale with mouse wheel
@@ -77,11 +66,14 @@ class Simulation(EventSubscriber):
             if event.key == pygame.K_p:
                 EventRegistrer.register_event(BuildPlotsEvent())
             if event.key == pygame.K_SPACE:
-                EventRegistrer.register_event(PauseEvent(not self.paused))
+                self.paused = not self.paused
+                EventRegistrer.register_event(PauseEvent(self.paused))
             if event.key == pygame.K_LEFTBRACKET and self.time_scale / config.TIME_SCALE_DELTA >= 1:
-                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale / config.TIME_SCALE_DELTA))
+                self.time_scale /= config.TIME_SCALE_DELTA
+                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale))
             if event.key == pygame.K_RIGHTBRACKET:
-                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale * config.TIME_SCALE_DELTA))
+                self.time_scale *= config.TIME_SCALE_DELTA
+                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale))
 
         # window is resized
         if event.type == pygame.VIDEORESIZE:
