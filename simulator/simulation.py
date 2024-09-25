@@ -69,11 +69,11 @@ class Simulation:
             if event.key == pygame.K_SPACE:
                 self.paused = not self.paused
                 EventRegistrer.register_event(PauseEvent(self.paused))
-            if event.key == pygame.K_LEFTBRACKET and self.amount_of_iterations // config.TIME_SCALE_DELTA >= 1:
-                self.amount_of_iterations //= config.TIME_SCALE_DELTA
+            if event.key == pygame.K_LEFTBRACKET and self.amount_of_iterations // config.AMOUNT_OF_ITERATIONS_DELTA >= 1:
+                self.amount_of_iterations //= config.AMOUNT_OF_ITERATIONS_DELTA
                 EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale, self.amount_of_iterations))
-            if event.key == pygame.K_RIGHTBRACKET and self.amount_of_iterations * config.TIME_SCALE_DELTA <= config.MAX_AMOUNT_OF_ITERATIONS:
-                self.amount_of_iterations *= config.TIME_SCALE_DELTA
+            if event.key == pygame.K_RIGHTBRACKET and self.amount_of_iterations * config.AMOUNT_OF_ITERATIONS_DELTA <= config.MAX_AMOUNT_OF_ITERATIONS:
+                self.amount_of_iterations *= config.AMOUNT_OF_ITERATIONS_DELTA
                 EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale, self.amount_of_iterations))
 
         # window is resized
