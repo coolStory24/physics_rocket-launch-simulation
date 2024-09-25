@@ -6,12 +6,12 @@ import config
 from groups import RenderGroup, PhysicsGroup, WidgetGroup
 from physics import Vector
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
-from events import EventRegistrer, BuildPlotsEvent, EventSubscriber, PauseEvent, TimeScaleUpdateEvent
+from events import EventRegistrer, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent
 from widgets import LoggerWidget, ClockWidget, TimeScaleWidget
 from logger import ConsoleLogger
 
 
-class Simulation(EventSubscriber):
+class Simulation:
     def __init__(self, dimensions=(1920, 1080), offset = (960, 540), pixels_per_meter: float = 1E-5,
                  time_scale: float = 1E3, groups=(), widgets=()):
         self.width, self.height = dimensions
