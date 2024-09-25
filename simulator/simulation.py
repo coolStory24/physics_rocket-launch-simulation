@@ -102,6 +102,8 @@ class Simulation:
         pygame.init()
         self.main_window = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
         pygame.display.set_caption('Rocket Simulator')
+        icon = pygame.image.load(config.ICON_PATH)
+        pygame.display.set_icon(icon    )
         delta_time = 1 / 60
         clock = pygame.time.Clock()
 
