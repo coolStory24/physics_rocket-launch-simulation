@@ -5,7 +5,7 @@ import config
 from arguments import configure
 from entities import Planet, Orbit
 from physics import Vector, Point
-from groups import GravityGroup, MoveGroup, CollisionGroup, SmartGroup, RotatingGroup
+from groups import create_groups
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
@@ -27,11 +27,6 @@ if __name__ == '__main__':
     simulation = Simulation(
         time_scale=config.TIME_SCALE,
         amount_of_iterations=config.AMOUNT_OF_ITERATIONS,
-        groups=(
-        GravityGroup(earth_sprite, moon_sprite, rocket_sprite),
-        SmartGroup(rocket_sprite),
-        CollisionGroup(earth_sprite, moon_sprite, rocket_sprite),
-        RotatingGroup(earth_sprite, moon_sprite),
-        MoveGroup(earth_sprite, moon_sprite, rocket_sprite),
-    ))
+        groups=create_groups(earth_sprite, moon_sprite, rocket_sprite)
+    )
     simulation.run()

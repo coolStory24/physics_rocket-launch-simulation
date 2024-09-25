@@ -24,7 +24,7 @@ class Simulation:
         self.total_sim_time = 0
 
         self.objects = {sprite for group in groups for sprite in group}
-        self.groups = [PhysicsGroup(*self.objects)] + list(groups[::])
+        self.groups = groups
         self.render_group = RenderGroup(*self.objects)
 
         self.offset = Vector(offset)

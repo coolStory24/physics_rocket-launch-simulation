@@ -6,6 +6,7 @@ from math import pi
 
 import config
 from physics import Vector, Physics
+from entities import Planet, BaseRocket
 from simobjects import SimRocketObject, SimPlanetaryObject
 from events import RocketEvent, EventRegistrer, CollisionEvent
 
@@ -110,3 +111,16 @@ class WidgetGroup(Group):
         if config.draw_widgets:
             for widget in self.sprites():
                 widget.render(screen, self.font, time)
+
+
+def create_groups(*sprites):
+    planets = [sprite for sprite in sprites if isinstance(sprite.entity, Planet)]
+    rockets = [sprite for sprite in sprites if isinstance(sprite.entity, BaseRocket)]
+    return (
+        PhysicsGroup(*sprites),
+        GravityGroup(*sprites),
+        SmartGroup(*rockets),
+        CollisionGroup(*sprites),
+        RotatingGroup(*planets),
+        MoveGroup(*sprites),
+    )
