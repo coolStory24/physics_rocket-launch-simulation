@@ -47,6 +47,9 @@ class Vector:
         if len(other.coordinates) == 2 and len(self._coordinates) == 2:
             return self.coordinates[0] * other.coordinates[1] - self.coordinates[1] * other.coordinates[0]
 
+    def rotate(self, angle: float):
+        return Vector((self.x * math.cos(angle) - self.y * math.sin(angle), self.x * math.sin(angle) + self.y * math.cos(angle)))
+
     @property
     def coordinates(self):
         return tuple(self._coordinates)
