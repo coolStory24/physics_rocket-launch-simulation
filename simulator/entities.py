@@ -15,10 +15,11 @@ class Planet(Entity):
 
 
 class BaseRocket(Entity):
-    def __init__(self, weight, payload_weight, planet: Planet, polar_angle: float, fuel_speed: float):
+    def __init__(self, weight: float, payload_weight: float, planet: Planet, polar_angle: float, fuel_speed: float):
         position = planet.position + Vector.make_vector_by_polar_angle(polar_angle, planet.radius + 1)
         speed = planet.surface_speed(polar_angle) + planet.speed
         super().__init__(weight, position, speed)
+        self.planet = planet
         self.payload_weight = payload_weight
         self.fuel_speed = fuel_speed
 
@@ -27,6 +28,8 @@ class BaseRocket(Entity):
         if next_weight >= self.payload_weight:
             self.force += engine_force_vector
             self.weight = next_weight
+        else:
+            print("FUEL!!!")
 
     def make_decision(self, delta_time: float):
         pass
