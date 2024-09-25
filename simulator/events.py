@@ -75,7 +75,16 @@ class RocketEvent(Event):
         self.position = position
         self.planet_position = planet_position
 
-
 class BuildPlotsEvent(Event):
     def __init__(self):
         super().__init__(0, False)
+
+class PauseEvent(Event):
+    def __init__(self, is_paused):
+        super().__init__(0, False)
+        self.is_paused = is_paused
+
+class TimeScaleUpdateEvent(Event):
+    def __init__(self, time_scale):
+        super().__init__(0, False)
+        self.time_scale = time_scale
