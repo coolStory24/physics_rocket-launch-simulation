@@ -6,6 +6,7 @@ from math import pi
 
 import config
 from physics import Vector, Physics
+from entities import Planet, BaseRocket
 from simobjects import SimRocketObject, SimPlanetaryObject
 from events import RocketEvent, EventRegistrer, CollisionEvent
 
@@ -51,7 +52,7 @@ class SmartGroup(PhysicsGroup):
         rockets = [sprite.entity for sprite in self.sprites()]
         for rocket in rockets:
             rocket.make_decision(delta_time)
-            EventRegistrer.register_event(RocketEvent(self.time, rocket.speed.copy(), rocket.position))
+            EventRegistrer.register_event(RocketEvent(self.time, rocket.speed.copy(), rocket.position, rocket.planet.position))
 
 
 class CollisionGroup(PhysicsGroup):
@@ -69,7 +70,7 @@ class CollisionGroup(PhysicsGroup):
                 if Physics.calculate_distance(planet.entity.position, rocket.entity.position) < planet.entity.radius:
                     landing_angle_absolute = Vector(planet.entity.position, rocket.entity.position).polar_angle
                     landing_angle_relative = (landing_angle_absolute - planet.entity.polar_angle) % (2 * math.pi)
-                    finite_speed_magnitude = (rocket.entity.speed - planet.entity.speed).magnitude
+                    finite_speed_magnitude = (rocket.entity.speed - planet.entity.speed - planet.entity.surface_speed(landing_angle_absolute)).magnitude
                     EventRegistrer.register_event(CollisionEvent(self.time, planet, rocket, landing_angle_relative, finite_speed_magnitude))
                     rocket.kill()
 
@@ -92,8 +93,12 @@ class RenderGroup(Group):
         self.font = pygame.font.Font(config.FONT_PATH, config.FONT_SIZE)
 
     def render(self, screen, scale: float, offset: Vector):
-        for entity in self.sprites():
-            entity.draw(screen, scale, offset, self.font)
+        for sprite in self.sprites():
+            sprite.draw(screen, scale, offset, self.font)
+
+        if config.draw_markers:
+            for sprite in self.sprites():
+                sprite.draw_text_marker(screen, scale, offset, self.font)
 
 
 class WidgetGroup(Group):
@@ -106,3 +111,16 @@ class WidgetGroup(Group):
         if config.draw_widgets:
             for widget in self.sprites():
                 widget.render(screen, self.font, time)
+
+
+def create_groups(*sprites):
+    planets = [sprite for sprite in sprites if isinstance(sprite.entity, Planet)]
+    rockets = [sprite for sprite in sprites if isinstance(sprite.entity, BaseRocket)]
+    return (
+        PhysicsGroup(*sprites),
+        GravityGroup(*sprites),
+        SmartGroup(*rockets),
+        CollisionGroup(*sprites),
+        RotatingGroup(*planets),
+        MoveGroup(*sprites),
+    )

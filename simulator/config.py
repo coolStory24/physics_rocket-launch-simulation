@@ -1,16 +1,18 @@
-import pygame
-
 OFFSET_DELTA = 3
 SCALE_DELTA = 1.03
 MOUSE_SCALE_DELTA = 1.03
 MIN_PLANETARY_SIZE = 1
 ROCKET_MARKER_SIZE = 2
-FONT_PATH = 'fonts/Inconsolata.ttf'
+FONT_PATH = '../media/fonts/Inconsolata.ttf'
+ICON_PATH = '../media/icon.png'
 FONT_SIZE = 27
 WIDGET_MARGIN = 10
-TIME_SCALE = 1E2
+TIME_SCALE = 10
 VERBOSE = False
 BUILD_GRAPHICS = False
+AMOUNT_OF_ITERATIONS = 1
+MAX_AMOUNT_OF_ITERATIONS = 4096
+AMOUNT_OF_ITERATIONS_DELTA = 2
 
 draw_markers = True
 draw_widgets = True

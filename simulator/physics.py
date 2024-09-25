@@ -34,11 +34,21 @@ class Vector:
     def __getitem__(self, item: int):
         return self._coordinates[item]
 
+    def __len__(self):
+        return len(self.coordinates)
+
     def __repr__(self):
         return f"Vector({self._coordinates})"
 
     def copy(self):
         return Vector(self._coordinates)
+
+    def cross_product(self, other):
+        if len(other.coordinates) == 2 and len(self._coordinates) == 2:
+            return self.coordinates[0] * other.coordinates[1] - self.coordinates[1] * other.coordinates[0]
+
+    def rotate(self, angle: float):
+        return Vector((self.x * math.cos(angle) - self.y * math.sin(angle), self.x * math.sin(angle) + self.y * math.cos(angle)))
 
     @property
     def coordinates(self):
@@ -66,7 +76,13 @@ class Vector:
 
     @property
     def polar_angle(self):
-        return math.atan2(self.y, self.x)
+        return math.atan2(self.y, self.x) % (math.pi * 2)
+
+    @staticmethod
+    def make_vector_by_polar_angle(polar_angle: float, magnitude: float):
+        x = magnitude * math.cos(polar_angle)
+        y = magnitude * math.sin(polar_angle)
+        return Vector((x, y))
 
 
 class Point:
