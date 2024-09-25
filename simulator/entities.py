@@ -28,8 +28,6 @@ class BaseRocket(Entity):
         if next_weight >= self.payload_weight:
             self.force += engine_force_vector
             self.weight = next_weight
-        else:
-            print("FUEL!!!")
 
     def make_decision(self, delta_time: float):
         pass
