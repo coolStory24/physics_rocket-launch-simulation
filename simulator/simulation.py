@@ -120,7 +120,7 @@ class Simulation:
             self.process_keyboard()
 
             if not self.paused:
-                for _ in range(self.amount_of_iterat                    ions):
+                for _ in range(self.amount_of_iterations):
                     for group in self.groups:
                         group.update(delta_time * self.time_scale)
 
