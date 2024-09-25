@@ -139,9 +139,9 @@ class ComplexRocket(BaseRocket):
             thrust_vector = normalized_target_acceleration_vector * self.weight * self.target_acceleration - gravity_force_vector
             self.fire_engine(thrust_vector, delta_time)
         else:
-            self.phase = self.phase_wait
+            self.phase = self.phase_wait_for_maneuver
 
-    def phase_wait(self, delta_time: float):
+    def phase_wait_for_maneuver(self, delta_time: float):
         if self.get_height() >= (self.target_height - 1):
             self.phase = self.phase_perform_maneuver
 
@@ -166,11 +166,15 @@ class ComplexRocket(BaseRocket):
         self.fire_engine(thrust_vector, delta_time)
 
         if delta_v_required <= delta_v_actual:
+            self.phase = self.phase_wait_for_correction_maneuver
+
+    def phase_wait_for_correction_maneuver(self, delta_time: float):
+        if self.get_height() <= self.target_height:
             self.phase = self.phase_correct_orbit
 
     def phase_correct_orbit(self, delta_time: float):
-        normalized_correction_vector = Vector(self.position, self.planet.position).normalize()
-        self.fire_engine(normalized_correction_vector * (self.weight * (self.target_acceleration * delta_time * 0.5) / delta_time), delta_time)
+        normalized_correction_vector = Vector(self.planet.position, self.position).normalize()
+        self.fire_engine(normalized_correction_vector * (self.weight * (self.target_acceleration * delta_time) / delta_time), delta_time)
 
     def make_decision(self, delta_time: float):
         orbit = Orbit.calculate_orbit(self.planet, self)
