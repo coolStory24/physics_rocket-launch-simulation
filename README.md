@@ -1,4 +1,6 @@
-# Rocket physics simulation
+# Kabal space program
+
+![icon](media/icon.png)
 
 ## Demo
 
@@ -24,7 +26,10 @@ python3 main.py --help
 
 ## Building graphics
 
-![graphic](media/graphic.png)
+![graphic](media/speed-vs-time.jpg)
+![graphic](media/height-vs-time.jpg)
+![graphic](media/rocket-trajectory.jpg)
+![graphic](media/hohmann-transfer-orbit.jpg)
 
 You can use `-g` or `--build-graphics` option to build graphics when rocket lands.
 
@@ -43,3 +48,5 @@ Confige file: `simulator/config.py`.
 - `w`, `a`, `s`, `d` and arrows for navigation
 - `+`, `-` for scale
 - `mouse` for navigation and scale
+- `[`, `]` - to change time acceleration
+- `space` - pause
