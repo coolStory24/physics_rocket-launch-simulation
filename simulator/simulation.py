@@ -102,6 +102,8 @@ class Simulation:
         pygame.init()
         self.main_window = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
         pygame.display.set_caption('Rocket Simulator')
+        icon = pygame.image.load(config.ICON_PATH)
+        pygame.display.set_icon(icon    )
         delta_time = 1 / 60
         clock = pygame.time.Clock()
 
@@ -118,7 +120,7 @@ class Simulation:
             self.process_keyboard()
 
             if not self.paused:
-                for _ in range(self.amount_of_iterations):
+                for _ in range(self.amount_of_iterat                    ions):
                     for group in self.groups:
                         group.update(delta_time * self.time_scale)
 
