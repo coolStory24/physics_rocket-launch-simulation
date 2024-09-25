@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
     simulation = Simulation(
         time_scale=config.TIME_SCALE,
+        amount_of_iterations=config.AMOUNT_OF_ITERATIONS,
         groups=(
         GravityGroup(earth_sprite, moon_sprite, rocket_sprite),
         SmartGroup(rocket_sprite),
