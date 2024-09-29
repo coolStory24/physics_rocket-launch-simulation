@@ -75,6 +75,7 @@ class RocketEvent(Event):
         self.position = position
         self.planet_position = planet_position
 
+
 class BuildPlotsEvent(Event):
     def __init__(self):
         super().__init__(0, False)
@@ -89,3 +90,8 @@ class TimeScaleUpdateEvent(Event):
         super().__init__(0, False)
         self.time_scale = time_scale
         self.amount_of_iterations = amount_of_iterations
+
+class CaptureEvent(Event):
+    def __init__(self, sprite):
+        super().__init__(0, False)
+        self.captured_sprite = sprite

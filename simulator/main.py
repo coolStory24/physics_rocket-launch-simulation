@@ -5,11 +5,12 @@ import config
 from arguments import configure
 from entities import Planet, PhaseControlledRocket, Orbit
 from physics import Vector, Point
-from groups import create_groups
+from groups import create_physics_groups
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
 from rocket_phases import RocketTakeoffPhase, RocketWaitGreaterHeightPhase, RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase
+from widgets import LoggerWidget, TimeScaleWidget, ClockWidget
 
 if __name__ == '__main__':
     configure()
@@ -33,9 +34,16 @@ if __name__ == '__main__':
     # Building graphs
     rocket_tracker = RocketTracker()
 
+    logger_widget = LoggerWidget()
+    clock_widget = ClockWidget()
+    time_scale_widget = TimeScaleWidget(False, config.TIME_SCALE, config.AMOUNT_OF_ITERATIONS)
+
+
     simulation = Simulation(
         time_scale=config.TIME_SCALE,
         amount_of_iterations=config.AMOUNT_OF_ITERATIONS,
-        groups=create_groups(earth_sprite, moon_sprite, rocket_sprite)
+        groups=create_physics_groups(earth_sprite, moon_sprite, rocket_sprite),
+        widgets=(logger_widget, clock_widget, time_scale_widget),
+        clickable=(earth_sprite, moon_sprite, rocket_sprite)
     )
     simulation.run()

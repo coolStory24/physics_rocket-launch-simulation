@@ -5,7 +5,7 @@ from pygame.sprite import Group, Sprite
 from math import pi
 
 import config
-from physics import Vector, Physics
+from physics import Vector, Point, Physics
 from entities import Planet, BaseRocket
 from simobjects import SimRocketObject, SimPlanetaryObject
 from events import RocketEvent, EventRegistrer, CollisionEvent
@@ -92,13 +92,17 @@ class RenderGroup(Group):
         pygame.font.init()
         self.font = pygame.font.Font(config.FONT_PATH, config.FONT_SIZE)
 
-    def render(self, screen, scale: float, offset: Vector):
+    def update_screen_settings(self, scale, offset: Vector):
         for sprite in self.sprites():
-            sprite.draw(screen, scale, offset, self.font)
+            sprite.update_screen_settings(scale, offset)
+
+    def render(self, screen):
+        for sprite in self.sprites():
+            sprite.draw(screen, self.font)
 
         if config.draw_markers:
             for sprite in self.sprites():
-                sprite.draw_text_marker(screen, scale, offset, self.font)
+                sprite.draw_text_marker(screen, self.font)
 
 
 class WidgetGroup(Group):
@@ -113,7 +117,16 @@ class WidgetGroup(Group):
                 widget.render(screen, self.font, time)
 
 
-def create_groups(*sprites):
+class ClickableGroup(Group):
+    def __init__(self, *sprites):
+        super().__init__(*sprites)
+
+    def process_mouseclick(self, mousepos: Point):
+        for sprite in self.sprites():
+            sprite.process_mouseclick(mousepos)
+
+
+def create_physics_groups(*sprites):
     planets = [sprite for sprite in sprites if isinstance(sprite.entity, Planet)]
     rockets = [sprite for sprite in sprites if isinstance(sprite.entity, BaseRocket)]
     return (
