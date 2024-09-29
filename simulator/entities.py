@@ -29,8 +29,63 @@ class BaseRocket(Entity):
             self.force += engine_force_vector
             self.weight = next_weight
 
+    @property
+    def absolute_height(self):
+        return Physics.calculate_distance(self.position, self.planet.position)
+
+    @property
+    def height(self):
+        return Physics.calculate_distance(self.position, self.planet.position) - self.planet.radius
+
+    @property
+    def position_vector(self):
+        return Vector(self.planet.position, self.position)
+
+    @property
+    def polar_angle(self):
+        return self.position_vector.polar_angle
+
+    @property
+    def gravity_to_planet(self):
+        return Physics.calculate_gravity(self, self.planet)
+
+    @property
+    def relative_speed(self):
+        return self.speed - self.planet.speed
+
+    @property
+    def takeoff_speed(self):
+        return self.position_vector.normalize() * Vector.dot_product(self.position_vector, self.relative_speed)
+
     def make_decision(self, delta_time: float):
-        pass
+        raise NotImplementedError("Call make_decision of BaseRocket")
+
+
+class PhaseControlledRocket(BaseRocket):
+    def __init__(self, weight: float, payload_weight: float, planet: Planet, polar_angle: float,
+                 phase_list, target_acceleration: float = 3.0 * 9.8, fuel_speed: float = 3000):
+        super().__init__(weight, payload_weight, planet, polar_angle, fuel_speed)
+        self.target_acceleration = target_acceleration
+        self.phase_stack = phase_list[::-1]
+
+    def end_phase(self):
+        self.phase_stack.pop()
+
+    def new_phase(self, phase):
+        self.phase_stack.append(phase)
+
+    def replace_current_phase(self, phase):
+        self.end_phase()
+        self.new_phase(phase)
+
+    def make_decision(self, delta_time):
+        if len(self.phase_stack) != 0:
+            self.phase_stack[-1].make_decision(self, delta_time)
+
+
+class RocketPhase:
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
+        raise NotImplementedError("Call make_decision of abstract phase")
 
 
 class Orbit:
