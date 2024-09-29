@@ -84,7 +84,7 @@ class PhaseControlledRocket(BaseRocket):
 
 
 class RocketPhase:
-    def make_decision(self, rocket, delta_time: float):
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
         raise NotImplementedError("Call make_decision of abstract phase")
 
 

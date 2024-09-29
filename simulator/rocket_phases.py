@@ -1,6 +1,6 @@
 import math
 
-from entities import Planet, BaseRocket, Orbit, RocketPhase
+from entities import Planet, BaseRocket, Orbit, RocketPhase, PhaseControlledRocket
 from physics import Physics, Vector, Point, Entity
 
 
@@ -8,7 +8,7 @@ class RocketTakeoffPhase(RocketPhase):
     def __init__(self, target_height: float):
         self.target_height = target_height
 
-    def make_decision(self, rocket, delta_time: float):
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
         if Orbit.calculate_orbit(rocket.planet, rocket).apogee_height < self.target_height:
             thrust_direction = rocket.position_vector.normalize()
             thrust_vector = thrust_direction * rocket.weight * rocket.target_acceleration - rocket.gravity_to_planet
@@ -22,7 +22,7 @@ class RocketRoundOrbitalManeuverPhase(RocketPhase):
         super().__init__()
         self.target_height = target_height
 
-    def make_decision(self, rocket, delta_time):
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         target_distance = rocket.planet.radius + self.target_height
 
         target_speed = math.sqrt(Physics.G * rocket.planet.weight / target_distance)
@@ -51,7 +51,7 @@ class RocketOrbitalManeuverPhase(RocketPhase):
         self.target_orbit = target_orbit
         self.maneuver_angle = target_orbit.polar_angle
 
-    def make_decision(self, rocket, delta_time):
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         target_perigee = self.target_orbit.perigee_distance
         target_apogee = self.target_orbit.semi_major_axis * 2 - target_perigee
 
@@ -70,7 +70,7 @@ class RocketOrbitalManeuverPhase(RocketPhase):
 
 
 class RocketLandPhase(RocketPhase):
-    def make_decision(self, rocket, delta_time):
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         self.deceleration_value = rocket.takeoff_speed.magnitude ** 2 / (2 * rocket.height)
 
         thrust_value = rocket.weight * self.deceleration_value + rocket.gravity_to_planet.magnitude
@@ -116,7 +116,7 @@ class RocketOrbitCorrectPhase(RocketPhase):
 
         return coefficient
 
-    def make_decision(self, rocket, delta_time):
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         correction_vector = rocket.position_vector.normalize() * rocket.weight * rocket.target_acceleration
         coefficient = self.calculate_current_correction_maneuver_coefficient(rocket, delta_time, correction_vector)
         rocket.fire_engine(correction_vector * coefficient, delta_time)
@@ -128,7 +128,7 @@ class RocketWaitGreaterHeightPhase(RocketPhase):
     def __init__(self, target_height: float):
         self.target_height = target_height
 
-    def make_decision(self, rocket, delta_time):
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         if rocket.height >= self.target_height:
             rocket.end_phase()
 
@@ -137,7 +137,7 @@ class RocketWaitLessHeightPhase(RocketPhase):
     def __init__(self, target_height: float):
         self.target_height = target_height
 
-    def make_decision(self, rocket, delta_time):
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         if rocket.height <= self.target_height:
             rocket.end_phase()
 
@@ -147,6 +147,6 @@ class RocketWaitPolarAnglePhase(RocketPhase):
         self.target_angle = target_angle
         self.epsilon = epsilon
 
-    def make_decision(self, rocket, delta_time):
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         if abs(rocket.polar_angle - self.target_angle) < self.epsilon:
             rocket.end_phase()
