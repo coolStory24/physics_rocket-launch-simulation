@@ -29,8 +29,36 @@ class BaseRocket(Entity):
             self.force += engine_force_vector
             self.weight = next_weight
 
+    @property
+    def absolute_height(self):
+        return Physics.calculate_distance(self.position, self.planet.position)
+
+    @property
+    def height(self):
+        return Physics.calculate_distance(self.position, self.planet.position) - self.planet.radius
+
+    @property
+    def position_vector(self):
+        return Vector(self.planet.position, self.position)
+
+    @property
+    def polar_angle(self):
+        return self.position_vector.polar_angle
+
+    @property
+    def gravity_to_planet(self):
+        return Physics.calculate_gravity(self, self.planet)
+
+    @property
+    def relative_speed(self):
+        return self.speed - self.planet.speed
+
+    @property
+    def takeoff_speed(self):
+        return self.position_vector.normalize() * Vector.dot_product(self.position_vector, self.relative_speed)
+
     def make_decision(self, delta_time: float):
-        pass
+        raise NotImplementedError("Call make_decision of BaseRocket")
 
 
 class Orbit:

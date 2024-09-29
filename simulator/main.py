@@ -9,14 +9,24 @@ from groups import create_groups
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
-from rockets import OrbitalManeuverRocket, VerticalTakeOffRocket, ComplexRocket
+from rockets import PhaseControlledRocket, RocketTakeoffPhase, RocketWaitGreaterHeightPhase, RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase
 
 if __name__ == '__main__':
     configure()
 
     earth = Planet(5.972E24, Point((0, 0)), Vector((0, 0)), 6371E3, math.pi / 12 / 60 / 60)
     moon = Planet(7.346E22, Point((384E6, 0)), Vector((0.0, 1.022E3)), 1737E3, 0)
-    rocket = ComplexRocket(2E5, 200, earth, 0, Orbit(earth, 400000, 0, 0), fuel_speed=10000)
+
+    target_height = 200_000
+
+    phases = [
+        RocketTakeoffPhase(target_height),
+        RocketWaitGreaterHeightPhase(target_height),
+        RocketRoundOrbitalManeuverPhase(target_height),
+        # RocketOrbitCorrectPhase(Orbit(earth, target_height, 0, 0)),
+    ]
+
+    rocket = PhaseControlledRocket(2E5, 200, earth, 0, phases)
     earth_sprite = SimPlanetaryObject(earth, pygame.Color("deepskyblue"), name="Earth")
     moon_sprite = SimPlanetaryObject(moon, pygame.Color("white"), name="Moon")
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
