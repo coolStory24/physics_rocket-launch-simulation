@@ -23,7 +23,6 @@ if __name__ == '__main__':
         RocketTakeoffPhase(target_height),
         RocketWaitGreaterHeightPhase(target_height),
         RocketRoundOrbitalManeuverPhase(target_height),
-        # RocketOrbitCorrectPhase(Orbit(earth, target_height, 0, 0)),
     ]
 
     rocket = PhaseControlledRocket(2E5, 200, earth, 0, phases)

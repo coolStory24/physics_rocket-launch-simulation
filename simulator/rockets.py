@@ -27,21 +27,6 @@ class PhaseControlledRocket(BaseRocket):
 
 
 class RocketPhase:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def end_phase(rocket):
-        rocket.end_phase()
-
-    @staticmethod
-    def new_phase(phase, rocket):
-        rocket.new_phase(phase)
-
-    @staticmethod
-    def replace(phase, rocket):
-        rocket.replace_current_phase(phase)
-
     def make_decision(self, rocket, delta_time: float):
         raise NotImplementedError("Call make_decision of abstract phase")
 
@@ -56,7 +41,7 @@ class RocketTakeoffPhase(RocketPhase):
             thrust_vector = thrust_direction * rocket.weight * rocket.target_acceleration - rocket.gravity_to_planet
             rocket.fire_engine(thrust_vector, delta_time)
         else:
-            RocketPhase.end_phase(rocket)
+            rocket.end_phase()
 
 
 class RocketRoundOrbitalManeuverPhase(RocketPhase):
@@ -84,7 +69,7 @@ class RocketRoundOrbitalManeuverPhase(RocketPhase):
         rocket.fire_engine(thrust_vector, delta_time)
 
         if delta_v_required <= delta_v_actual:
-            RocketPhase.replace(RocketOrbitCorrectPhase(Orbit(rocket.planet, self.target_height, 0, rocket.polar_angle)), rocket)
+            rocket.replace_current_phase(RocketOrbitCorrectPhase(Orbit(rocket.planet, self.target_height, 0, rocket.polar_angle)))
 
 
 class RocketOrbitalManeuverPhase(RocketPhase):
@@ -108,7 +93,7 @@ class RocketOrbitalManeuverPhase(RocketPhase):
         rocket.fire_engine(thrust_vector, delta_time)
 
         if delta_v_required <= delta_v_actual:
-            RocketPhase.end_phase(rocket)
+            rocket.end_phase()
 
 
 class RocketLandPhase(RocketPhase):
@@ -125,7 +110,7 @@ class RocketLandPhase(RocketPhase):
         new_absolute_height = Physics.calculate_distance(new_position, rocket.planet.position)
 
         if new_absolute_height > rocket.absolute_height:
-            RocketPhase.end_phase(rocket)
+            rocket.end_phase()
 
         rocket.fire_engine(thrust_vector, delta_time)
 
@@ -163,7 +148,7 @@ class RocketOrbitCorrectPhase(RocketPhase):
         coefficient = self.calculate_current_correction_maneuver_coefficient(rocket, delta_time, correction_vector)
         rocket.fire_engine(correction_vector * coefficient, delta_time)
         if coefficient < 0.001:
-            RocketPhase.end_phase(rocket)
+            rocket.end_phase()
 
 
 class RocketWaitGreaterHeightPhase(RocketPhase):
@@ -172,7 +157,7 @@ class RocketWaitGreaterHeightPhase(RocketPhase):
 
     def make_decision(self, rocket, delta_time):
         if rocket.height >= self.target_height:
-            RocketPhase.end_phase(rocket)
+            rocket.end_phase()
 
 
 class RocketWaitLessHeightPhase(RocketPhase):
@@ -181,7 +166,7 @@ class RocketWaitLessHeightPhase(RocketPhase):
 
     def make_decision(self, rocket, delta_time):
         if rocket.height <= self.target_height:
-            RocketPhase.end_phase(rocket)
+            rocket.end_phase()
 
 
 class RocketWaitPolarAnglePhase(RocketPhase):
@@ -191,4 +176,4 @@ class RocketWaitPolarAnglePhase(RocketPhase):
 
     def make_decision(self, rocket, delta_time):
         if abs(rocket.polar_angle - self.target_angle) < self.epsilon:
-            RocketPhase.end_phase(rocket)
+            rocket.end_phase()
