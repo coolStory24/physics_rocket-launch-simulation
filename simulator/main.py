@@ -3,13 +3,13 @@ import math
 
 import config
 from arguments import configure
-from entities import Planet, Orbit
+from entities import Planet, PhaseControlledRocket, Orbit
 from physics import Vector, Point
 from groups import create_groups
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
-from rockets import PhaseControlledRocket, RocketTakeoffPhase, RocketWaitGreaterHeightPhase, RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase
+from rocket_phases import RocketTakeoffPhase, RocketWaitGreaterHeightPhase, RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase
 
 if __name__ == '__main__':
     configure()

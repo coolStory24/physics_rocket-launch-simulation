@@ -61,6 +61,33 @@ class BaseRocket(Entity):
         raise NotImplementedError("Call make_decision of BaseRocket")
 
 
+class PhaseControlledRocket(BaseRocket):
+    def __init__(self, weight: float, payload_weight: float, planet: Planet, polar_angle: float,
+                 phase_list, target_acceleration: float = 3.0 * 9.8, fuel_speed: float = 3000):
+        super().__init__(weight, payload_weight, planet, polar_angle, fuel_speed)
+        self.target_acceleration = target_acceleration
+        self.phase_stack = phase_list[::-1]
+
+    def end_phase(self):
+        self.phase_stack.pop()
+
+    def new_phase(self, phase):
+        self.phase_stack.append(phase)
+
+    def replace_current_phase(self, phase):
+        self.end_phase()
+        self.new_phase(phase)
+
+    def make_decision(self, delta_time):
+        if len(self.phase_stack) != 0:
+            self.phase_stack[-1].make_decision(self, delta_time)
+
+
+class RocketPhase:
+    def make_decision(self, rocket, delta_time: float):
+        raise NotImplementedError("Call make_decision of abstract phase")
+
+
 class Orbit:
     def __init__(self, planet: Planet, perigee_height: float, eccentricity: float, polar_angle: float):
         self.planet = planet
