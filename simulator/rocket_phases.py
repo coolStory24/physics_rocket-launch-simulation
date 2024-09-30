@@ -42,20 +42,21 @@ class RocketRoundOrbitalManeuverPhase(RocketPhase):
         rocket.fire_engine(thrust_vector, delta_time)
 
         if delta_v_required <= delta_v_actual:
-            rocket.replace_current_phase(RocketOrbitCorrectPhase(Orbit(rocket.planet, self.target_height, 0, rocket.polar_angle)))
+            rocket.end_phase()
+            # rocket.replace_current_phase(RocketOrbitCorrectPhase(Orbit(rocket.planet, self.target_height, 0, rocket.polar_angle)))
 
 
 class RocketOrbitalManeuverPhase(RocketPhase):
     def __init__(self, target_orbit: Orbit):
         super().__init__()
         self.target_orbit = target_orbit
-        self.maneuver_angle = target_orbit.polar_angle
 
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         target_perigee = self.target_orbit.perigee_distance
         target_apogee = self.target_orbit.semi_major_axis * 2 - target_perigee
 
-        target_speed = math.sqrt(2 * Physics.G * rocket.planet.weight * target_apogee / (target_perigee * (target_perigee + target_apogee)))
+        # target_speed = math.sqrt(2 * Physics.G * rocket.planet.weight * target_apogee / (target_perigee * (target_perigee + target_apogee)))
+        target_speed = math.sqrt(2 * Physics.G * self.target_orbit.planet.weight * target_apogee / (target_perigee * (target_perigee + target_apogee)))
 
         delta_v_required = target_speed - rocket.relative_speed.magnitude
 
@@ -150,3 +151,73 @@ class RocketWaitPolarAnglePhase(RocketPhase):
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         if abs(rocket.polar_angle - self.target_angle) < self.epsilon:
             rocket.end_phase()
+
+
+class RocketWaitForPlanetAntiphasePhase(RocketPhase):
+    def __init__(self,planet: Planet,  epsilon: float):
+        self.epsilon = epsilon
+        self.planet = planet
+
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
+        if abs(Vector(self.planet.position, rocket.planet.position).polar_angle - Vector(rocket.planet.position, rocket.position).polar_angle) < self.epsilon:
+            print(rocket.planet.speed.magnitude, rocket.speed.magnitude)
+            rocket.planet = self.planet
+            rocket.end_phase()
+            print("Fly")
+
+class RocketGravityCompensationPhase(RocketPhase):
+    def __init__(self, earth: Planet, sun: Planet, mars: Planet):
+        self.earth = earth
+        self.sun = sun
+        self.mars = mars
+
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
+        print("waiting", Orbit.calculate_orbit(self.sun, rocket).apogee_distance - Physics.calculate_distance(self.sun.position, self.mars.position))
+        rocket.fire_engine(Physics.calculate_gravity(self.earth, rocket) * 0.5, delta_time)
+
+
+class RocketSolarManeuverPhase(RocketPhase):
+    def __init__(self, earth: Planet, sun: Planet, target_orbit: Orbit):
+        self.earth = earth
+        self.sun = sun
+        self.target_orbit = target_orbit
+
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
+        target_perigee = self.target_orbit.perigee_distance
+        target_apogee = self.target_orbit.semi_major_axis * 2 - target_perigee
+
+        target_speed = math.sqrt(2 * Physics.G * rocket.planet.weight * target_apogee / (target_perigee * (target_perigee + target_apogee)))
+        # target_speed = math.sqrt(2 * Physics.G * self.target_orbit.planet.weight * target_apogee / (target_perigee * (target_perigee + target_apogee)))
+
+        delta_v_required = target_speed - rocket.relative_speed.magnitude
+
+        delta_v_actual = min(delta_v_required, rocket.target_acceleration * delta_time)
+
+        thrust_vector = rocket.relative_speed.normalize() * (rocket.weight * delta_v_actual / delta_time)
+        thrust_vector += Physics.calculate_gravity(self.earth, rocket)
+
+        rocket.fire_engine(thrust_vector, delta_time)
+
+        if delta_v_required <= delta_v_actual:
+            rocket.end_phase()
+
+
+class RocketTestOrbitManeuverPhase(RocketPhase):
+    def __init__(self, earth: Planet, sun: Planet, mars: Planet):
+        self.earth = earth
+        self.sun = sun
+        self.mars = mars
+
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
+        orbit = Orbit.calculate_orbit(self.sun, rocket)
+        print(orbit.apogee_distance - Physics.calculate_distance(self.sun.position, self.mars.position))
+
+        sun_rocket_vector = Vector(self.sun.position, rocket.position).normalize()
+        thrust_direction = Vector((sun_rocket_vector.y, -sun_rocket_vector.x)).normalize()
+        # thrust_direction = rocket.speed.normalize()
+        thrust_vector = Physics.calculate_gravity(self.earth, rocket) * 0.01
+        if orbit.apogee_distance <= Physics.calculate_distance(self.sun.position, self.mars.position):
+            thrust_vector += thrust_direction * (rocket.weight * rocket.target_acceleration) * 0.001
+            print("Correction")
+
+        rocket.fire_engine(thrust_vector, delta_time)
