@@ -108,7 +108,9 @@ class Orbit:
         # Distance between the planet and the entity
         r = Vector(planet.position, entity.position)
 
-        v = entity.speed.magnitude
+        relative_speed = entity.speed - planet.speed
+
+        v = relative_speed.magnitude
 
         # Specific orbital energy
         epsilon = (v ** 2) / 2 - (mu / r.magnitude)
@@ -117,11 +119,11 @@ class Orbit:
         semi_major_axis = -mu / (2 * epsilon)
 
         # Angular momentum vector h = r x v
-        angular_momentum = r.cross_product(entity.speed)
+        angular_momentum = r.cross_product(relative_speed)
         h = angular_momentum
 
         # Eccentricity vector
-        eccentricity_vector = (entity.speed * (angular_momentum / mu)) - (r / r.magnitude)
+        eccentricity_vector = (relative_speed * (angular_momentum / mu)) - (r / r.magnitude)
 
         # Eccentricity e
         eccentricity = math.sqrt(1 + (2 * epsilon * h ** 2) / mu ** 2)
