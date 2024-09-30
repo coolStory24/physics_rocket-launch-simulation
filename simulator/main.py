@@ -4,13 +4,16 @@ import math
 import config
 from arguments import configure
 from entities import Planet, PhaseControlledRocket, Orbit
-from physics import Vector, Point
-from groups import create_physics_groups
+from physics import Vector, Point, Physics
+from groups import create_groups
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
-from rocket_phases import RocketTakeoffPhase, RocketWaitGreaterHeightPhase, RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase
-from widgets import LoggerWidget, TimeScaleWidget, ClockWidget, CaptureWidget
+from rocket_phases import RocketTakeoffPhase, RocketWaitGreaterHeightPhase, RocketRoundOrbitalManeuverPhase, \
+    RocketOrbitCorrectPhase
+from entities import OrbitInitRocket
+from rocket_phases import RocketWaitForPlanetAntiphasePhase, RocketOrbitalManeuverPhase, RocketGravityCompensationPhase
+from simulator.rocket_phases import RocketSolarManeuverPhase, RocketTestOrbitManeuverPhase
 
 if __name__ == '__main__':
     configure()
@@ -25,31 +28,33 @@ if __name__ == '__main__':
     sun_sprite = SimPlanetaryObject(sun, pygame.Color("yellow"), name="Sun")
     mars_sprite = SimPlanetaryObject(mars, pygame.Color("red3"), name="Mars")
 
-    target_height = 200_000
+    target_height = 50_000_000
 
     phases = [
-        RocketTakeoffPhase(target_height),
-        RocketWaitGreaterHeightPhase(target_height),
-        RocketRoundOrbitalManeuverPhase(target_height),
+        # RocketTakeoffPhase(target_height),
+        # RocketWaitGreaterHeightPhase(target_height),
+        # RocketRoundOrbitalManeuverPhase(target_height),
+        RocketWaitForPlanetAntiphasePhase(sun, 0.017),
+        # RocketRoundOrbitalManeuverPhase(Physics.calculate_distance(sun.position, earth.position) + earth.radius + target_height - sun.radius),
+        # RocketOrbitalManeuverPhase(Orbit(sun, Physics.calculate_distance(sun.position, earth.position), 0.209, 0))
+        # RocketBreakFromPlanetPhase(sun),
+        # RocketTransferToMarsPhase(Physics.calculate_distance(sun.position, mars.position), sun)
+        # RocketRoundOrbitalManeuverPhase(Physics.calculate_distance(sun.position, earth.position)),
+        # RocketSolarManeuverPhase(earth, sun, Orbit(sun, Physics.calculate_distance(sun.position, earth.position), 0.209, 0)),
+        RocketTestOrbitManeuverPhase(earth, sun, mars),
+        RocketGravityCompensationPhase(earth, sun, mars)
     ]
 
-    rocket = PhaseControlledRocket(2E5, 200, earth, 0, phases)
+    # rocket = PhaseControlledRocket(2E5, 200, earth, 0, phases)
+    rocket = OrbitInitRocket(7E6, 200, earth, Point((0, earth.radius + target_height)), earth.speed + Vector((2659.10, 0)), phases, fuel_speed=6000)
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
-
 
     # Building graphs
     rocket_tracker = RocketTracker()
 
-    logger_widget = LoggerWidget()
-    clock_widget = ClockWidget()
-    time_scale_widget = TimeScaleWidget(False, config.TIME_SCALE, config.AMOUNT_OF_ITERATIONS)
-    capture_widget = CaptureWidget(None)
-
     simulation = Simulation(
         time_scale=config.TIME_SCALE,
         amount_of_iterations=config.AMOUNT_OF_ITERATIONS,
-        groups=create_physics_groups(earth_sprite, moon_sprite, mars_sprite, rocket_sprite),
-        widgets=(logger_widget, clock_widget, time_scale_widget, capture_widget),
-        clickable = (earth_sprite, moon_sprite, mars_sprite, rocket_sprite)
+        groups=create_groups(earth_sprite, moon_sprite, sun_sprite, mars_sprite, rocket_sprite),
     )
     simulation.run()

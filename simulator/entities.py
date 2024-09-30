@@ -28,6 +28,8 @@ class BaseRocket(Entity):
         if next_weight >= self.payload_weight:
             self.force += engine_force_vector
             self.weight = next_weight
+        else:
+            print("Fuel!")
 
     @property
     def absolute_height(self):
@@ -81,6 +83,14 @@ class PhaseControlledRocket(BaseRocket):
     def make_decision(self, delta_time):
         if len(self.phase_stack) != 0:
             self.phase_stack[-1].make_decision(self, delta_time)
+
+
+class OrbitInitRocket(PhaseControlledRocket):
+    def __init__(self, weight: float, payload_weight: float, planet: Planet, init_position: Point, init_speed: Vector,
+                 phase_list, target_acceleration: float = 3.0 * 9.8, fuel_speed: float = 3000):
+        super().__init__(weight, payload_weight, planet, 0, phase_list, target_acceleration, fuel_speed)
+        self.position = init_position
+        self.speed = init_speed
 
 
 class RocketPhase:
