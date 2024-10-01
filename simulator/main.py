@@ -36,6 +36,7 @@ if __name__ == '__main__':
     rocket = PhaseControlledRocket(2E5, 200, earth, 0, phases)
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
 
+
     # Building graphs
     rocket_tracker = RocketTracker()
 
@@ -47,8 +48,8 @@ if __name__ == '__main__':
     simulation = Simulation(
         time_scale=config.TIME_SCALE,
         amount_of_iterations=config.AMOUNT_OF_ITERATIONS,
-        groups=create_groups(earth_sprite, moon_sprite, sun_sprite, mars_sprite, rocket_sprite),
+        groups=create_physics_groups(earth_sprite, moon_sprite, mars_sprite, rocket_sprite),
         widgets=(logger_widget, clock_widget, time_scale_widget, capture_widget),
-        clickable=(earth_sprite, moon_sprite, rocket_sprite)
+        clickable = (earth_sprite, moon_sprite, mars_sprite, rocket_sprite)
     )
     simulation.run()
