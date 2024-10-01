@@ -63,7 +63,7 @@ class SimPlanetaryObject(SimObject):
 
 
 class SimRocketObject(SimObject):
-    def __init__(self, entity: BaseRocket, color=pygame.Color("firebrick1"), name: str = "ROCKET"):
+    def __init__(self, entity: BaseRocket, color=pygame.Color("red"), name: str = "ROCKET"):
         super().__init__(entity, color=color, name=name)
 
     def draw(self, screen, font):
