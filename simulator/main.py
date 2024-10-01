@@ -13,7 +13,8 @@ from rocket_phases import RocketTakeoffPhase, RocketWaitGreaterHeightPhase, Rock
     RocketOrbitCorrectPhase
 from entities import OrbitInitRocket
 from rocket_phases import RocketWaitForPlanetAntiphasePhase, RocketOrbitalManeuverPhase, RocketGravityCompensationPhase
-from simulator.rocket_phases import RocketSolarManeuverPhase, RocketTestOrbitManeuverPhase
+from events import GravityTrackingEvent
+from rocket_phases import RocketSolarManeuverPhase, RocketTestOrbitManeuverPhase
 
 if __name__ == '__main__':
     configure()
@@ -51,7 +52,8 @@ if __name__ == '__main__':
 
     # Building graphs
     rocket_tracker = RocketTracker()
-
+    GravityTrackingEvent.sun = sun
+    GravityTrackingEvent.earth = earth
     simulation = Simulation(
         time_scale=config.TIME_SCALE,
         amount_of_iterations=config.AMOUNT_OF_ITERATIONS,
