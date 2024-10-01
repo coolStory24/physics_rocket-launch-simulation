@@ -3,7 +3,7 @@ import pygame
 
 import config
 from logger import Logger
-from events import EventSubscriber, PauseEvent, TimeScaleUpdateEvent
+from events import EventSubscriber, PauseEvent, TimeScaleUpdateEvent, FollowEvent, FollowEventCapture, FollowEventUncapture
 
 
 class Widget(Sprite):
@@ -54,8 +54,7 @@ class TimeScaleWidget(Widget, EventSubscriber):
         self.is_paused = is_paused
         self.time_scale = time_scale
         self.amount_of_iterations = amount_of_iterations
-        self.subscribe(PauseEvent)
-        self.subscribe(TimeScaleUpdateEvent)
+        self.subscribe(PauseEvent, TimeScaleUpdateEvent)
 
     def handle_event(self, event):
         if isinstance(event, PauseEvent):
@@ -72,3 +71,23 @@ class TimeScaleWidget(Widget, EventSubscriber):
         else:
             text = font.render(f"X{int(self.time_scale * self.amount_of_iterations)}", True, "White")
         screen.blit(text, (config.WIDGET_MARGIN, config.WIDGET_MARGIN))
+
+
+class CaptureWidget(Widget, EventSubscriber):
+    def __init__(self, followed_sprite):
+        super().__init__()
+        self.subscribe(FollowEvent)
+        self.followed_sprite = followed_sprite
+
+    def handle_event(self, event):
+        if isinstance(event, FollowEventCapture):
+            self.followed_sprite = event.captured_sprite
+        else:
+            self.followed_sprite = None
+
+    def render(self, screen, font, simtime):
+        if self.followed_sprite is None:
+            return
+
+        text = font.render(f"{self.followed_sprite.name} is captured (escape to uncapture)", True, self.followed_sprite.color)
+        screen.blit(text, (config.WIDGET_MARGIN, screen.get_height() - text.get_height() - config.WIDGET_MARGIN))

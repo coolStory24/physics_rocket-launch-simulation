@@ -10,7 +10,7 @@ from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
 from rocket_phases import RocketTakeoffPhase, RocketWaitGreaterHeightPhase, RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase
-from widgets import LoggerWidget, TimeScaleWidget, ClockWidget
+from widgets import LoggerWidget, TimeScaleWidget, ClockWidget, CaptureWidget
 
 if __name__ == '__main__':
     configure()
@@ -37,13 +37,13 @@ if __name__ == '__main__':
     logger_widget = LoggerWidget()
     clock_widget = ClockWidget()
     time_scale_widget = TimeScaleWidget(False, config.TIME_SCALE, config.AMOUNT_OF_ITERATIONS)
-
+    capture_widget = CaptureWidget(None)
 
     simulation = Simulation(
         time_scale=config.TIME_SCALE,
         amount_of_iterations=config.AMOUNT_OF_ITERATIONS,
         groups=create_physics_groups(earth_sprite, moon_sprite, rocket_sprite),
-        widgets=(logger_widget, clock_widget, time_scale_widget),
+        widgets=(logger_widget, clock_widget, time_scale_widget, capture_widget),
         clickable=(earth_sprite, moon_sprite, rocket_sprite)
     )
     simulation.run()
