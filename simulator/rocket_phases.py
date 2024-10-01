@@ -223,8 +223,8 @@ class RocketTestOrbitManeuverPhase(RocketPhase):
         self.total_time += delta_time
         if self.total_time >= 0.3 * 10 ** 7:
             return
-        thrust_vector = Physics.calculate_gravity(self.earth, rocket) * 0.1
+        thrust_vector = Physics.calculate_gravity(self.earth, rocket) * 0.093
         if orbit.apogee_distance <= Physics.calculate_distance(self.sun.position, self.mars.position):
-            thrust_vector += thrust_direction * (rocket.weight * rocket.target_acceleration) * 0.1
+            thrust_vector += thrust_direction * (rocket.weight * rocket.target_acceleration) * 0.5
 
         rocket.fire_engine(thrust_vector, delta_time)
