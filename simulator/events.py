@@ -20,17 +20,18 @@ class EventRegistrer:
             EventRegistrer.events.append(event)
 
     @staticmethod
-    def subscribe(subscriber, event_type):
-        EventRegistrer.subscriptions.append(Subscription(subscriber, event_type))
+    def subscribe(subscriber, *event_types):
+        EventRegistrer.subscriptions += [Subscription(subscriber, e) for e in event_types]
 
-        for event in EventRegistrer.events:
-            if isinstance(event, event_type):
-                subscriber.handle_event(event)
+        for event_type in event_types:
+            for event in EventRegistrer.events:
+                if isinstance(event, event_type):
+                    subscriber.handle_event(event)
 
 
 class EventSubscriber:
-    def subscribe(self, event_type):
-        EventRegistrer.subscribe(self, event_type)
+    def subscribe(self, *event_types):
+        EventRegistrer.subscribe(self, *event_types)
 
     def handle_event(self, event):
         raise NotImplementedError()
@@ -75,6 +76,7 @@ class RocketEvent(Event):
         self.position = position
         self.planet_position = planet_position
 
+
 class BuildPlotsEvent(Event):
     def __init__(self):
         super().__init__(0, False)
@@ -89,3 +91,17 @@ class TimeScaleUpdateEvent(Event):
         super().__init__(0, False)
         self.time_scale = time_scale
         self.amount_of_iterations = amount_of_iterations
+
+class FollowEvent(Event):
+    def __init__(self):
+        super().__init__(0, False)
+
+class FollowEventCapture(FollowEvent):
+    def __init__(self, sprite, screen_pos: Vector):
+        super().__init__()
+        self.captured_sprite = sprite
+        self.screen_pos = screen_pos
+
+class FollowEventUncapture(FollowEvent):
+    def __init__(self):
+        super().__init__()
