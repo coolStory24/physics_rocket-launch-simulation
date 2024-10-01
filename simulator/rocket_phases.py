@@ -207,17 +207,25 @@ class RocketTestOrbitManeuverPhase(RocketPhase):
         self.earth = earth
         self.sun = sun
         self.mars = mars
+        self.total_time = 0
 
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         orbit = Orbit.calculate_orbit(self.sun, rocket)
-        print(orbit.apogee_distance - Physics.calculate_distance(self.sun.position, self.mars.position))
+        print(orbit.apogee_distance - Physics.calculate_distance(self.sun.position, self.mars.position), Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position))
+        distance = Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position)
+        # print(Orbit.calculate_orbit(self.sun, self.mars).apogee_distance - Orbit.calculate_orbit(self.sun, self.mars).perigee_distance)
+        if abs(distance) < 30_000_000:
+            print("time:", self.total_time, "angle:", Vector(self.sun.position, rocket.position).polar_angle)
+            print("\n" * 5)
 
         sun_rocket_vector = Vector(self.sun.position, rocket.position).normalize()
         thrust_direction = Vector((sun_rocket_vector.y, -sun_rocket_vector.x)).normalize()
         # thrust_direction = rocket.speed.normalize()
-        thrust_vector = Physics.calculate_gravity(self.earth, rocket) * 0.01
+        self.total_time += delta_time
+        if self.total_time >= 0.3 * 10 ** 7:
+            return
+        thrust_vector = Physics.calculate_gravity(self.earth, rocket) * 0.1
         if orbit.apogee_distance <= Physics.calculate_distance(self.sun.position, self.mars.position):
-            thrust_vector += thrust_direction * (rocket.weight * rocket.target_acceleration) * 0.001
-            print("Correction")
+            thrust_vector += thrust_direction * (rocket.weight * rocket.target_acceleration) * 0.1
 
         rocket.fire_engine(thrust_vector, delta_time)
