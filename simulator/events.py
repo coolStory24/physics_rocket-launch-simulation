@@ -1,4 +1,5 @@
-from physics import Vector, Point
+from physics import Vector, Point, Physics
+from entities import BaseRocket
 
 
 class Subscription:
@@ -75,6 +76,18 @@ class RocketEvent(Event):
         self.speed = speed
         self.position = position
         self.planet_position = planet_position
+
+
+class GravityTrackingEvent(Event):
+    sun = None
+    earth = None
+    def __init__(self, time, rocket: BaseRocket):
+        super().__init__(time)
+        self.rocket = rocket
+        self.sun_position = GravityTrackingEvent.sun.position
+        self.earth_position = GravityTrackingEvent.earth.position
+        self.sun_gravity = Physics.calculate_gravity(GravityTrackingEvent.sun, rocket).magnitude
+        self.earth_gravity = Physics.calculate_gravity(GravityTrackingEvent.earth, rocket).magnitude
 
 
 class BuildPlotsEvent(Event):
