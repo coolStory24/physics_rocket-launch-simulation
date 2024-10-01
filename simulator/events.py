@@ -92,7 +92,16 @@ class TimeScaleUpdateEvent(Event):
         self.time_scale = time_scale
         self.amount_of_iterations = amount_of_iterations
 
-class CaptureEvent(Event):
-    def __init__(self, sprite):
+class FollowEvent(Event):
+    def __init__(self):
         super().__init__(0, False)
+
+class FollowEventCapture(FollowEvent):
+    def __init__(self, sprite, screen_pos: Vector):
+        super().__init__()
         self.captured_sprite = sprite
+        self.screen_pos = screen_pos
+
+class FollowEventUncapture(FollowEvent):
+    def __init__(self):
+        super().__init__()

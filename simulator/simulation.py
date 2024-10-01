@@ -1,12 +1,13 @@
 import sys
 import pygame
 import time
+from typing import TypeVar
 
 import config
 from groups import RenderGroup, WidgetGroup, ClickableGroup
 from physics import Vector, Point
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
-from events import Event, EventRegistrer, EventSubscriber, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent, CaptureEvent
+from events import Event, EventRegistrer, EventSubscriber, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent, FollowEvent, FollowEventCapture, FollowEventUncapture
 from widgets import LoggerWidget, ClockWidget, TimeScaleWidget
 from logger import ConsoleLogger
 
@@ -32,13 +33,12 @@ class Simulation(EventSubscriber):
         self.clickable_group = ClickableGroup(clickable)
 
         self.followed_sprite = None
+        self.followed_position = Vector((0, 0))
 
         if config.VERBOSE:
             self.console_logger = ConsoleLogger()
 
-        self.subscribe(PauseEvent)
-        self.subscribe(TimeScaleUpdateEvent)
-        self.subscribe(CaptureEvent)
+        self.subscribe(PauseEvent, TimeScaleUpdateEvent, FollowEvent)
 
     @property
     def display_center(self):
@@ -46,47 +46,59 @@ class Simulation(EventSubscriber):
 
     def update_pixels_per_meter(self, center: Vector, delta: float):
         # recalculating offset to keep center in the same position on the screen
-        self.offset = center - (center - self.offset) * delta
+        if self.followed_sprite is None:
+            self.offset = center - (center - self.offset) * delta
+        else:
+            self.followed_position = center - (center - self.followed_position) * delta
 
         self.pixels_per_meter *= delta
 
+    def add_offset(self, addition: Vector):
+        if self.followed_sprite is None:
+            self.offset += addition
+        else:
+            self.followed_position += addition
+
     def handle_event(self, event):
         if isinstance(event, PauseEvent):
-            self.paused = not self.paused
-        elif isinstance(event, TimeScaleUpdateEvent):
+            self.paused = event.is_paused
+        if isinstance(event, TimeScaleUpdateEvent):
             self.time_scale = event.time_scale
             self.amount_of_iterations = event.amount_of_iterations
-        elif isinstance(event, CaptureEvent):
+        if isinstance(event, FollowEventCapture):
             self.followed_sprite = event.captured_sprite
+            self.followed_position = event.screen_pos
+        if isinstance(event, FollowEventUncapture):
+            self.followed_sprite = None
 
     def handle_pygame_event(self, event):
         if event.type == pygame.MOUSEWHEEL:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.update_pixels_per_meter(Vector((mouse_x, mouse_y)), MOUSE_SCALE_DELTA ** event.y if event.y > 0 else 1 / MOUSE_SCALE_DELTA ** (-event.y))
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            self.dragging = True
-            self.mouse_on_time = time.time()
-            pygame.mouse.get_rel()
-            EventRegistrer.register_event(CaptureEvent(None))
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            left, _, _ = pygame.mouse.get_pressed()
+            if left:
+                self.dragging = True
+                self.mouse_on_time = time.time()
+                pygame.mouse.get_rel()
 
-        if event.type == pygame.MOUSEBUTTONUP:
+        elif event.type == pygame.MOUSEBUTTONUP:
             self.dragging = False
-            EventRegistrer.register_event(CaptureEvent(None))
 
             if time.time() - self.mouse_on_time < config.MOUSECLICK_TIME:
                 self.clickable_group.process_mouseclick(Point(pygame.mouse.get_pos()))
 
         if event.type == pygame.MOUSEMOTION and self.dragging:
-            self.offset += Vector(pygame.mouse.get_rel())
+            self.add_offset(Vector(pygame.mouse.get_rel()))
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_c:
                 config.draw_markers = not config.draw_markers
             if event.key == pygame.K_h:
                 config.draw_widgets = not config.draw_widgets
-            if event.key == pygame.K_u:
-                EventRegistrer.register_event(CaptureEvent(None))
+            if event.key == pygame.K_ESCAPE:
+                EventRegistrer.register_event(FollowEventUncapture())
 
             if event.key == pygame.K_p:
                 EventRegistrer.register_event(BuildPlotsEvent())
@@ -98,6 +110,7 @@ class Simulation(EventSubscriber):
                 EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale, self.amount_of_iterations * config.AMOUNT_OF_ITERATIONS_DELTA))
 
         # window is resized
+
         if event.type == pygame.VIDEORESIZE:
             self.width, self.height = event.w, event.h
 
@@ -110,13 +123,13 @@ class Simulation(EventSubscriber):
             self.update_pixels_per_meter(self.display_center, 1/SCALE_DELTA)
 
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.offset += Vector((0, OFFSET_DELTA))
+            self.add_offset(Vector((0, OFFSET_DELTA)))
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.offset += Vector((0, -OFFSET_DELTA))
+            self.add_offset(Vector((0, -OFFSET_DELTA)))
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.offset += Vector((OFFSET_DELTA, 0))
+            self.add_offset(Vector((OFFSET_DELTA, 0)))
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.offset += Vector((-OFFSET_DELTA, 0))
+            self.add_offset(Vector((-OFFSET_DELTA, 0)))
 
     def run(self):
         pygame.init()
@@ -146,10 +159,11 @@ class Simulation(EventSubscriber):
 
                     self.total_sim_time += delta_time * self.time_scale
 
-            if self.followed_sprite is not None:
-                self.offset += self.display_center - Vector(self.followed_sprite.centre_on_screen)
-
             self.render_group.update_screen_settings(self.pixels_per_meter, self.offset)
+
+            if self.followed_sprite is not None:
+                self.offset += self.followed_position - Vector(self.followed_sprite.center_on_screen)
+
             self.render_group.render(self.main_window)
             self.widget_group.render(self.main_window, self.total_sim_time)
 
