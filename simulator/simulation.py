@@ -1,14 +1,12 @@
 import sys
 import pygame
 import time
-from typing import TypeVar
 
 import config
 from groups import RenderGroup, WidgetGroup, ClickableGroup
 from physics import Vector, Point
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
-from events import Event, EventRegistrer, EventSubscriber, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent, FollowEvent, FollowEventCapture, FollowEventUncapture, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent, SetSimulationTimeScaleEvent
-from widgets import LoggerWidget, ClockWidget, TimeScaleWidget
+from events import EventRegistrer, EventSubscriber, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent, FollowEvent, FollowEventCapture, FollowEventUncapture, PrintTotalSimTimeEvent, SetMinSimulationTimeScaleEvent
 from logger import ConsoleLogger
 
 
@@ -38,7 +36,7 @@ class Simulation(EventSubscriber):
         if config.VERBOSE:
             self.console_logger = ConsoleLogger()
 
-        self.subscribe(PauseEvent, TimeScaleUpdateEvent, FollowEvent, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent)
+        self.subscribe(PauseEvent, TimeScaleUpdateEvent, FollowEvent, PrintTotalSimTimeEvent, SetMinSimulationTimeScaleEvent)
 
     @property
     def display_center(self):
@@ -72,8 +70,9 @@ class Simulation(EventSubscriber):
             self.followed_sprite = None
         if isinstance(event, PrintTotalSimTimeEvent):
             print("Total sim time:", self.total_sim_time)
-        if isinstance(event, SetSimulationTimeScaleEvent):
-            self.time_scale = event.time_scale
+        if isinstance(event, SetMinSimulationTimeScaleEvent):
+            if self.time_scale > event.time_scale:
+                self.time_scale = event.time_scale
 
 
     def handle_pygame_event(self, event):

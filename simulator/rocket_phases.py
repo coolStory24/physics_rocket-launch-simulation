@@ -1,8 +1,8 @@
 import math
 
-from entities import Planet, BaseRocket, Orbit, RocketPhase, PhaseControlledRocket
-from physics import Physics, Vector, Point, Entity
-from events import EventRegistrer, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent
+from entities import Planet, Orbit, RocketPhase, PhaseControlledRocket
+from physics import Physics, Vector, Entity
+from events import EventRegistrer, PrintTotalSimTimeEvent, SetMinSimulationTimeScaleEvent
 
 
 class RocketTakeoffPhase(RocketPhase):
@@ -50,7 +50,6 @@ class RocketOrbitalManeuverPhase(RocketPhase):
     def __init__(self, target_orbit: Orbit):
         super().__init__()
         self.target_orbit = target_orbit
-        self.maneuver_angle = target_orbit.polar_angle
 
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         target_perigee = self.target_orbit.perigee_distance
@@ -72,9 +71,9 @@ class RocketOrbitalManeuverPhase(RocketPhase):
 
 class RocketLandPhase(RocketPhase):
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
-        self.deceleration_value = rocket.takeoff_speed.magnitude ** 2 / (2 * rocket.height)
+        deceleration_value = rocket.takeoff_speed.magnitude ** 2 / (2 * rocket.height)
 
-        thrust_value = rocket.weight * self.deceleration_value + rocket.gravity_to_planet.magnitude
+        thrust_value = rocket.weight * deceleration_value + rocket.gravity_to_planet.magnitude
         thrust_vector = rocket.position_vector.normalize() * thrust_value
 
         # calculate presumable speed considering engine thrust after the next simulation speed
@@ -215,11 +214,8 @@ class RocketTestOrbitManeuverPhase(RocketPhase):
         distance = Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position)
         # print(Orbit.calculate_orbit(self.sun, self.mars).apogee_distance - Orbit.calculate_orbit(self.sun, self.mars).perigee_distance)
         if abs(distance) < 60_000_000:
-            print("distance:", distance)
             EventRegistrer.register_event(PrintTotalSimTimeEvent())
-            print("angle:", Vector(self.sun.position, rocket.position).polar_angle)
-            print("\n")
-            EventRegistrer.register_event(SetSimulationTimeScaleEvent(10))
+            EventRegistrer.register_event(SetMinSimulationTimeScaleEvent(10))
             rocket.planet = self.mars
             rocket.end_phase()
 
@@ -243,9 +239,7 @@ class RocketOrbitalBreakPhase(RocketPhase):
     def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
         try:
             orbit = Orbit.calculate_orbit(rocket.planet, rocket)
-            print("Done! eccentricity: ", orbit.eccentricity)
         except ValueError:
-            print("Stop!")
             thrust_direction = -rocket.relative_speed.normalize()
             thrust_vector = thrust_direction * rocket.weight * rocket.target_acceleration
             rocket.fire_engine(thrust_vector, delta_time)
