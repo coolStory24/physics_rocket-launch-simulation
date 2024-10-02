@@ -55,7 +55,7 @@ class BaseRocket(Entity):
 
     @property
     def takeoff_speed(self):
-        return self.position_vector.normalize() * Vector.dot_product(self.position_vector, self.relative_speed)
+        return self.position_vector.normalize() * Vector.dot_product(self.position_vector.normalize(), self.relative_speed)
 
     def make_decision(self, delta_time: float):
         raise NotImplementedError("Call make_decision of BaseRocket")
@@ -86,6 +86,22 @@ class PhaseControlledRocket(BaseRocket):
 class RocketPhase:
     def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
         raise NotImplementedError("Call make_decision of abstract phase")
+
+    @staticmethod
+    def add_speed(rocket: PhaseControlledRocket, delta_v_required: Vector, delta_time: float):
+        delta_v_actual = min(delta_v_required.magnitude, rocket.target_acceleration * delta_time)
+        thrust_vector = delta_v_required.normalize() * (rocket.weight * delta_v_actual / delta_time)
+        rocket.fire_engine(thrust_vector, delta_time)
+
+    @staticmethod
+    def add_acceleration(rocket: PhaseControlledRocket, acceleration_required: Vector, delta_time):
+        acceleration_actual_magnitude = min(acceleration_required.magnitude, rocket.target_acceleration)
+        thrust_vector = acceleration_required.normalize() * acceleration_actual_magnitude
+        rocket.fire_engine(thrust_vector, delta_time)
+
+    @staticmethod
+    def add_force(rocket: PhaseControlledRocket, force_required: Vector, delta_time):
+        RocketPhase.add_acceleration(rocket, force_required / rocket.weight, delta_time)
 
 
 class Orbit:
