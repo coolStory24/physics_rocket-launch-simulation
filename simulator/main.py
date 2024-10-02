@@ -46,7 +46,6 @@ if __name__ == '__main__':
         RocketOrbitalBreakPhase()
     ]
 
-    # rocket = OrbitInitRocket(9E6, 200, earth, Point((0, earth.radius + target_height)), earth.speed + Vector((2659.10, 0)), phases, fuel_speed=8000)
     rocket = PhaseControlledRocket(9E6, 200, earth, 0, phases, fuel_speed=8000)
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
 
