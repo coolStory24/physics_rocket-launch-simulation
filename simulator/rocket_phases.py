@@ -176,7 +176,6 @@ class RocketWaitForPlanetAntiphasePhase(RocketPhase):
             print(rocket.planet.speed.magnitude, rocket.speed.magnitude)
             rocket.planet = self.planet
             rocket.end_phase()
-            print("Fly")
 
 class RocketGravityCompensationPhase(RocketPhase):
     def __init__(self, earth: Planet, sun: Planet, mars: Planet):
@@ -185,7 +184,6 @@ class RocketGravityCompensationPhase(RocketPhase):
         self.mars = mars
 
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
-        print("waiting", Orbit.calculate_orbit(self.sun, rocket).apogee_distance - Physics.calculate_distance(self.sun.position, self.mars.position))
         rocket.fire_engine(Physics.calculate_gravity(self.earth, rocket) * 0.5, delta_time)
 
 
@@ -223,22 +221,15 @@ class RocketTestOrbitManeuverPhase(RocketPhase):
 
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         orbit = Orbit.calculate_orbit(self.sun, rocket)
-        # print(orbit.apogee_distance - Physics.calculate_distance(self.sun.position, self.mars.position), Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position))
         distance = Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position)
-        # print(Orbit.calculate_orbit(self.sun, self.mars).apogee_distance - Orbit.calculate_orbit(self.sun, self.mars).perigee_distance)
-        # print("distance to Mars = ", Physics.calculate_distance(self.mars.position, self.sun.position))
-        print("distance:", distance)
-        if abs(distance) < 50_000_000:
+        if 10_000 < distance:
             EventRegistrer.register_event(PrintTotalSimTimeEvent())
             EventRegistrer.register_event(SetSimulationTimeScaleEvent(10))
-            print("distance:", distance, "angle:", Vector(self.sun.position, rocket.position).polar_angle)
-            print("mars angle:", Vector(self.sun.position, self.mars.position).polar_angle)
             rocket.planet = self.mars
             rocket.end_phase()
 
         sun_rocket_vector = Vector(self.sun.position, rocket.position).normalize()
         thrust_direction = Vector((sun_rocket_vector.y, -sun_rocket_vector.x)).normalize()
-        # thrust_direction = rocket.speed.normalize()
         self.total_time += delta_time
         if self.total_time >= 0.3 * 10 ** 7:
             return
