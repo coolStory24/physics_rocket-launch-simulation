@@ -12,7 +12,7 @@ from logger import ConsoleLogger
 
 class Simulation(EventSubscriber):
     def __init__(self, dimensions=(1920, 1080), offset = (960, 540), pixels_per_meter: float = 1E-5,
-                 time_scale: float = 1E3, amount_of_iterations: float = 40, groups=(), widgets=(), clickable=()):
+                 time_scale: float = 10, amount_of_iterations: float = 40, groups=(), widgets=(), clickable=()):
         self.width, self.height = dimensions
         self.main_window = None
         self.paused = False

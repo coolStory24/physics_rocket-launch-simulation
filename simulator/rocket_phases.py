@@ -18,6 +18,14 @@ class RocketTakeoffPhase(RocketPhase):
             rocket.end_phase()
 
 
+class RocketPrintHeightPhase(RocketPhase):
+    def __init__(self):
+        pass
+
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
+        print(Physics.calculate_distance(rocket.planet.position, rocket.position) - rocket.planet.radius)
+
+
 class RocketRoundOrbitalManeuverPhase(RocketPhase):
     def __init__(self, target_height: float):
         super().__init__()

@@ -3,16 +3,17 @@ import math
 
 import config
 from arguments import configure
-from entities import Planet
+from entities import Planet, Orbit
 from physics import Vector, Point
 from groups import create_physics_groups
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
-from entities import OrbitInitRocket
-from rocket_phases import RocketWaitForPlanetAntiphasePhase
+from entities import OrbitInitRocket, PhaseControlledRocket
 from events import GravityTrackingEvent
-from rocket_phases import RocketTestOrbitManeuverPhase, RocketOrbitalBreakPhase
+from rocket_phases import RocketTestOrbitManeuverPhase, RocketOrbitalBreakPhase, RocketTakeoffPhase, RocketPrintHeightPhase
+from rocket_phases import RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase
+from simulator.rocket_phases import RocketWaitGreaterHeightPhase
 from widgets import LoggerWidget, ClockWidget, TimeScaleWidget, CaptureWidget
 
 if __name__ == '__main__':
@@ -31,12 +32,17 @@ if __name__ == '__main__':
     target_height = 50_000_000
 
     phases = [
-        RocketWaitForPlanetAntiphasePhase(sun, 0.017),
-        RocketTestOrbitManeuverPhase(earth, sun, mars),
-        RocketOrbitalBreakPhase()
+        RocketTakeoffPhase(300000),
+        RocketRoundOrbitalManeuverPhase(300000),
+        RocketWaitGreaterHeightPhase(300000),
+        RocketOrbitCorrectPhase(Orbit(earth, 300000, 0, 0))
+        # RocketWaitForPlanetAntiphasePhase(sun, 0.017),
+        # RocketTestOrbitManeuverPhase(earth, sun, mars),
+        # RocketOrbitalBreakPhase()
     ]
 
-    rocket = OrbitInitRocket(9E6, 200, earth, Point((0, earth.radius + target_height)), earth.speed + Vector((2659.10, 0)), phases, fuel_speed=8000)
+    # rocket = OrbitInitRocket(9E6, 200, earth, Point((0, earth.radius + target_height)), earth.speed + Vector((2659.10, 0)), phases, fuel_speed=8000)
+    rocket = PhaseControlledRocket(9E6, 200, earth, 0, phases, fuel_speed=8000)
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
 
     # Building graphs
