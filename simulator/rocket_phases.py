@@ -42,7 +42,7 @@ class RocketRoundOrbitalManeuverPhase(RocketPhase):
         rocket.fire_engine(thrust_vector, delta_time)
 
         if delta_v_required <= delta_v_actual:
-            rocket.replace_current_phase(RocketOrbitCorrectPhase(Orbit(rocket.planet, self.target_height, 0, rocket.polar_angle)))
+            rocket.end_phase()
 
 
 class RocketOrbitalManeuverPhase(RocketPhase):
@@ -106,7 +106,7 @@ class RocketOrbitCorrectPhase(RocketPhase):
         left = -1
         right = 1
         coefficient = 0.5
-        for i in range(10):
+        for i in range(11):
             new_orbit = self.calculate_next_orbit(current_vector * coefficient, rocket, delta_time)
             if new_orbit.apogee_distance - new_orbit.perigee_distance <= current_distance:
                 left = coefficient
@@ -117,7 +117,7 @@ class RocketOrbitCorrectPhase(RocketPhase):
         return coefficient
 
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
-        correction_vector = rocket.position_vector.normalize() * rocket.weight * rocket.target_acceleration
+        correction_vector = -rocket.position_vector.normalize() * rocket.weight * rocket.target_acceleration
         coefficient = self.calculate_current_correction_maneuver_coefficient(rocket, delta_time, correction_vector)
         rocket.fire_engine(correction_vector * coefficient, delta_time)
         if coefficient < 0.001:
