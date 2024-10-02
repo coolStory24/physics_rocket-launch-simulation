@@ -9,7 +9,7 @@ from groups import create_physics_groups
 from simobjects import SimPlanetaryObject, SimRocketObject
 from simulation import Simulation
 from logger import RocketTracker
-from entities import OrbitInitRocket, PhaseControlledRocket
+from entities import PhaseControlledRocket
 from events import GravityTrackingEvent
 from rocket_phases import RocketTestOrbitManeuverPhase, RocketOrbitalBreakPhase, RocketTakeoffPhase, RocketPrintHeightPhase
 from rocket_phases import RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase, SetTimeScalePhase
@@ -37,12 +37,10 @@ if __name__ == '__main__':
         RocketRoundOrbitalManeuverPhase(300000),
         RocketOrbitCorrectPhase(Orbit(earth, 300000, 0, 0)),
         RocketWaitPolarAnglePhase(math.pi, 0.017),
-        # RocketPrintHeightPhase(),
         RocketOrbitalManeuverPhase(Orbit.with_apogee(earth, 300000 + earth.radius, target_height + earth.radius, math.pi)),
         RocketWaitGreaterHeightPhase(target_height),
         RocketRoundOrbitalManeuverPhase(target_height),
         RocketWaitGreaterHeightPhase(target_height),
-        # RocketWaitForPlanetAntiphasePhase(sun, 0.017),
         SetTimeScalePhase(1000),
         RocketTestOrbitManeuverPhase(earth, sun, mars),
         RocketOrbitalBreakPhase()

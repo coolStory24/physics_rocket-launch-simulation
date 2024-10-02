@@ -85,14 +85,6 @@ class PhaseControlledRocket(BaseRocket):
             self.phase_stack[-1].make_decision(self, delta_time)
 
 
-class OrbitInitRocket(PhaseControlledRocket):
-    def __init__(self, weight: float, payload_weight: float, planet: Planet, init_position: Point, init_speed: Vector,
-                 phase_list, target_acceleration: float = 3.0 * 9.8, fuel_speed: float = 3000):
-        super().__init__(weight, payload_weight, planet, 0, phase_list, target_acceleration, fuel_speed)
-        self.position = init_position
-        self.speed = init_speed
-
-
 class RocketPhase:
     def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
         raise NotImplementedError("Call make_decision of abstract phase")
