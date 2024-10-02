@@ -4,7 +4,7 @@ from pygame.sprite import Sprite
 import config
 from entities import Planet, BaseRocket
 from physics import Entity, Vector, Point
-from events import EventRegistrer, FollowEventCapture
+from events import EventRegistrer, EventSubscriber, FollowEventCapture, RocketEntityOutOfFuelEvent, RocketSpritetOutOfFuelEvent
 
 
 class SimObject(Sprite):
@@ -62,9 +62,16 @@ class SimPlanetaryObject(SimObject):
         self._draw_text_marker(screen, font, self.entity.radius * self.scale)
 
 
-class SimRocketObject(SimObject):
+class SimRocketObject(SimObject, EventSubscriber):
     def __init__(self, entity: BaseRocket, color=pygame.Color("red"), name: str = "ROCKET"):
         super().__init__(entity, color=color, name=name)
+        self.subscribe(RocketEntityOutOfFuelEvent)
+        self.no_fuel_notifyed = False
+
+    def handle_event(self, event):
+        if not self.no_fuel_notifyed and event.rocket == self.entity:
+            EventRegistrer.register_event(RocketSpritetOutOfFuelEvent(self))
+            self.no_fuel_notifyed = True
 
     def draw(self, screen, font):
         if not isinstance(self.entity, BaseRocket):
