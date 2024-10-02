@@ -1,6 +1,7 @@
 import math
 
 from physics import Entity, Point, Vector, Physics
+from events import EventRegistrer, RocketEntityOutOfFuelEvent
 
 
 class Planet(Entity):
@@ -28,6 +29,8 @@ class BaseRocket(Entity):
         if next_weight >= self.payload_weight:
             self.force += engine_force_vector
             self.weight = next_weight
+        else:
+            EventRegistrer.register_event(RocketEntityOutOfFuelEvent(self))
 
     @property
     def absolute_height(self):
@@ -115,6 +118,11 @@ class Orbit:
         self.semi_minor_axis = self.semi_major_axis * math.sqrt(1 - eccentricity ** 2)
         self.apogee_distance = self.semi_major_axis * 2 - self.perigee_distance
         self.apogee_height = self.apogee_distance - self.planet.radius
+
+    @staticmethod
+    def with_apogee(planet, perigee_distance, apogee_distance, polar_angle):
+        eps = (apogee_distance - perigee_distance) / (apogee_distance + perigee_distance)
+        return Orbit(planet, perigee_distance - planet.radius, eps, polar_angle)
 
     @staticmethod
     def calculate_orbit(planet: Planet, entity: Entity):

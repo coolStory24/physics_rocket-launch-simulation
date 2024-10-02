@@ -9,6 +9,7 @@ from physics import Vector, Point, Physics
 from entities import Planet, BaseRocket
 from simobjects import SimRocketObject, SimPlanetaryObject
 from events import RocketEvent, EventRegistrer, CollisionEvent
+from events import GravityTrackingEvent
 
 
 class PhysicsGroup(Group):
@@ -53,17 +54,16 @@ class SmartGroup(PhysicsGroup):
         for rocket in rockets:
             rocket.make_decision(delta_time)
             EventRegistrer.register_event(RocketEvent(self.time, rocket.speed.copy(), rocket.position, rocket.planet.position))
+            EventRegistrer.register_event(GravityTrackingEvent(self.time, rocket))
 
 
 class CollisionGroup(PhysicsGroup):
     def __init__(self, *sprites):
         super().__init__(*sprites)
-        self.time = 0
 
     def update(self, delta_time: float):
         rockets = [sprite for sprite in self.sprites() if isinstance(sprite, SimRocketObject)]
         planets = [sprite for sprite in self.sprites() if isinstance(sprite, SimPlanetaryObject)]
-        self.time += delta_time
 
         for rocket in rockets:
             for planet in planets:
@@ -71,7 +71,7 @@ class CollisionGroup(PhysicsGroup):
                     landing_angle_absolute = Vector(planet.entity.position, rocket.entity.position).polar_angle
                     landing_angle_relative = (landing_angle_absolute - planet.entity.polar_angle) % (2 * math.pi)
                     finite_speed_magnitude = (rocket.entity.speed - planet.entity.speed - planet.entity.surface_speed(landing_angle_absolute)).magnitude
-                    EventRegistrer.register_event(CollisionEvent(self.time, planet, rocket, landing_angle_relative, finite_speed_magnitude))
+                    EventRegistrer.register_event(CollisionEvent(planet, rocket, landing_angle_relative, finite_speed_magnitude))
                     rocket.kill()
 
 
