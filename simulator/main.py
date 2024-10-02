@@ -13,7 +13,7 @@ from entities import OrbitInitRocket, PhaseControlledRocket
 from events import GravityTrackingEvent
 from rocket_phases import RocketTestOrbitManeuverPhase, RocketOrbitalBreakPhase, RocketTakeoffPhase, RocketPrintHeightPhase
 from rocket_phases import RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase, SetTimeScalePhase
-from simulator.rocket_phases import RocketWaitGreaterHeightPhase, RocketWaitPolarAnglePhase, RocketOrbitalManeuverPhase
+from rocket_phases import RocketWaitGreaterHeightPhase, RocketWaitPolarAnglePhase, RocketOrbitalManeuverPhase
 from widgets import LoggerWidget, ClockWidget, TimeScaleWidget, CaptureWidget
 
 if __name__ == '__main__':
