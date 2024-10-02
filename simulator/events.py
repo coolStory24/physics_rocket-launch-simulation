@@ -125,7 +125,7 @@ class PrintTotalSimTimeEvent(Event):
         super().__init__(0, False)
 
 
-class SetMinSimulationTimeScaleEvent(Event):
+class SetSimulationTimeScaleEvent(Event):
     def __init__(self, time_scale: float):
         super().__init__(0, False)
         self.time_scale = time_scale

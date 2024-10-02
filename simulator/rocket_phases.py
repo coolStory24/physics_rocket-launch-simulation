@@ -2,7 +2,7 @@ import math
 
 from entities import Planet, Orbit, RocketPhase, PhaseControlledRocket
 from physics import Physics, Vector, Entity
-from events import EventRegistrer, PrintTotalSimTimeEvent, SetMinSimulationTimeScaleEvent
+from events import EventRegistrer, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent
 
 
 class RocketTakeoffPhase(RocketPhase):
@@ -40,7 +40,7 @@ class RocketRoundOrbitalManeuverPhase(RocketPhase):
 
         delta_v_actual = min(delta_v_required, rocket.target_acceleration * delta_time)
 
-        maneuver_speed_vector = Vector(rocket.planet.position, rocket.position).rotate(math.pi / 2).normalize()
+        maneuver_speed_vector = Vector(rocket.planet.position, rocket.position).rotate(-math.pi / 2).normalize()
 
         thrust_vector = maneuver_speed_vector * (rocket.weight * delta_v_actual / delta_time)
 
@@ -106,20 +106,26 @@ class RocketOrbitCorrectPhase(RocketPhase):
         new_acceleration = new_force / new_weight
         new_position = rocket.position + rocket.speed * delta_time + new_acceleration * delta_time ** 2 / 2
         new_speed = rocket.speed + new_acceleration * delta_time
-        return Orbit.calculate_orbit(rocket.planet, Entity(new_weight, new_position, new_speed))
+        try:
+            return Orbit.calculate_orbit(rocket.planet, Entity(new_weight, new_position, new_speed))
+        except ValueError:
+            return None
 
     def calculate_current_correction_maneuver_coefficient(self, rocket, delta_time: float, current_vector: Vector):
         current_orbit = Orbit.calculate_orbit(rocket.planet, rocket)
         current_distance = current_orbit.apogee_distance - current_orbit.perigee_distance
-        left = -1
+        left = 0
         right = 1
         coefficient = 0.5
         for i in range(11):
             new_orbit = self.calculate_next_orbit(current_vector * coefficient, rocket, delta_time)
-            if new_orbit.apogee_distance - new_orbit.perigee_distance <= current_distance:
-                left = coefficient
-            else:
+            if new_orbit is None:
                 right = coefficient
+                continue
+            if new_orbit.apogee_distance - new_orbit.perigee_distance <= current_distance:
+                right = coefficient
+            else:
+                left = coefficient
             coefficient = (left + right) / 2
 
         return coefficient
@@ -128,7 +134,7 @@ class RocketOrbitCorrectPhase(RocketPhase):
         correction_vector = -rocket.position_vector.normalize() * rocket.weight * rocket.target_acceleration
         coefficient = self.calculate_current_correction_maneuver_coefficient(rocket, delta_time, correction_vector)
         rocket.fire_engine(correction_vector * coefficient, delta_time)
-        if coefficient < 0.001:
+        if abs(coefficient) < 0.001:
             rocket.end_phase()
 
 
@@ -194,7 +200,6 @@ class RocketSolarManeuverPhase(RocketPhase):
         target_apogee = self.target_orbit.semi_major_axis * 2 - target_perigee
 
         target_speed = math.sqrt(2 * Physics.G * rocket.planet.weight * target_apogee / (target_perigee * (target_perigee + target_apogee)))
-        # target_speed = math.sqrt(2 * Physics.G * self.target_orbit.planet.weight * target_apogee / (target_perigee * (target_perigee + target_apogee)))
 
         delta_v_required = target_speed - rocket.relative_speed.magnitude
 
@@ -221,11 +226,15 @@ class RocketTestOrbitManeuverPhase(RocketPhase):
         # print(orbit.apogee_distance - Physics.calculate_distance(self.sun.position, self.mars.position), Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position))
         distance = Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position)
         # print(Orbit.calculate_orbit(self.sun, self.mars).apogee_distance - Orbit.calculate_orbit(self.sun, self.mars).perigee_distance)
-        if abs(distance) < 60_000_000:
+        # print("distance to Mars = ", Physics.calculate_distance(self.mars.position, self.sun.position))
+        print("distance:", distance)
+        if abs(distance) < 50_000_000:
             EventRegistrer.register_event(PrintTotalSimTimeEvent())
-            EventRegistrer.register_event(SetMinSimulationTimeScaleEvent(10))
+            # EventRegistrer.register_event(SetSimulationTimeScaleEvent(10))
+            print("distance:", distance, "angle:", Vector(self.sun.position, rocket.position).polar_angle)
+            print("mars angle:", Vector(self.sun.position, self.mars.position).polar_angle)
             rocket.planet = self.mars
-            rocket.end_phase()
+            # rocket.end_phase()
 
         sun_rocket_vector = Vector(self.sun.position, rocket.position).normalize()
         thrust_direction = Vector((sun_rocket_vector.y, -sun_rocket_vector.x)).normalize()
@@ -251,3 +260,12 @@ class RocketOrbitalBreakPhase(RocketPhase):
             thrust_direction = -rocket.relative_speed.normalize()
             thrust_vector = thrust_direction * rocket.weight * rocket.target_acceleration
             rocket.fire_engine(thrust_vector, delta_time)
+
+
+class SetTimeScalePhase(RocketPhase):
+    def __init__(self, time_scale: float):
+        self.time_scale = time_scale
+
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
+        EventRegistrer.register_event(SetSimulationTimeScaleEvent(self.time_scale))
+        rocket.end_phase()

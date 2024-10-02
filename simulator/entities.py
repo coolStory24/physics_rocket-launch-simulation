@@ -111,6 +111,11 @@ class Orbit:
         self.apogee_height = self.apogee_distance - self.planet.radius
 
     @staticmethod
+    def with_apogee(planet, perigee_distance, apogee_distance, polar_angle):
+        eps = (apogee_distance - perigee_distance) / (apogee_distance + perigee_distance)
+        return Orbit(planet, perigee_distance - planet.radius, eps, polar_angle)
+
+    @staticmethod
     def calculate_orbit(planet: Planet, entity: Entity):
         # Gravitational parameter μ = G * planet_mass
         mu = Physics.G * planet.weight

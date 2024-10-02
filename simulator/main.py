@@ -12,17 +12,19 @@ from logger import RocketTracker
 from entities import OrbitInitRocket, PhaseControlledRocket
 from events import GravityTrackingEvent
 from rocket_phases import RocketTestOrbitManeuverPhase, RocketOrbitalBreakPhase, RocketTakeoffPhase, RocketPrintHeightPhase
-from rocket_phases import RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase
-from simulator.rocket_phases import RocketWaitGreaterHeightPhase
+from rocket_phases import RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase, SetTimeScalePhase
+from simulator.rocket_phases import RocketWaitGreaterHeightPhase, RocketWaitPolarAnglePhase, RocketOrbitalManeuverPhase
 from widgets import LoggerWidget, ClockWidget, TimeScaleWidget, CaptureWidget
 
 if __name__ == '__main__':
     configure()
 
-    earth = Planet(5.972E24, Point((0, 0)), Vector((0, -29780)), 6371E3, math.pi / 12 / 60 / 60)
+    earth = Planet(5.972E24, Point((0, 0)), Vector((0, -29780)), 6371E3, -math.pi / 12 / 60 / 60)
     moon = Planet(7.346E22, Point((earth.position.x + 384E6, 0)), Vector((0.0, earth.speed.y -1.022E3)), 1737E3, 0)
     sun = Planet(1.989E30, Point((-1.496E11, 0)), Vector((0, 0)), 696340E3, 0)
-    mars = Planet(6.39E23, Point((-203238809218.32413 + sun.position.x, -103113512342.06726 + sun.position.y)), Vector((-21523.3767293377, 10919.917217382656)), 3389E3, math.pi / 24.62 / 2 / 60 / 60)
+    # mars = Planet(6.39E23, Point((-203238809218.32413 + sun.position.x, -103113512342.06726 + sun.position.y)), Vector((-21523.3767293377, 10919.917217382656)), 3389E3, -math.pi / 24.62 / 2 / 60 / 60)
+    # mars = Planet(6.39E23, Point((-226204053087.42844 + sun.position.x, -27751330901.775776 + sun.position.y)), Vector((-23955.43976580662, 2938.9187627929573)), 3389E3, -math.pi / 24.62 / 2 / 60 / 60)
+    mars = Planet(6.39E23, Point((0.783E11, 0)), Vector((0, -24135.043771816236)), 3389E3, math.pi / 24.62 / 2 / 60 / 60)
 
     earth_sprite = SimPlanetaryObject(earth, pygame.Color("deepskyblue"), name="Earth")
     moon_sprite = SimPlanetaryObject(moon, pygame.Color("white"), name="Moon")
@@ -33,12 +35,19 @@ if __name__ == '__main__':
 
     phases = [
         RocketTakeoffPhase(300000),
-        RocketRoundOrbitalManeuverPhase(300000),
         RocketWaitGreaterHeightPhase(300000),
-        RocketOrbitCorrectPhase(Orbit(earth, 300000, 0, 0))
+        RocketRoundOrbitalManeuverPhase(300000),
+        RocketOrbitCorrectPhase(Orbit(earth, 300000, 0, 0)),
+        RocketWaitPolarAnglePhase(math.pi, 0.017),
+        # RocketPrintHeightPhase(),
+        RocketOrbitalManeuverPhase(Orbit.with_apogee(earth, 300000 + earth.radius, target_height + earth.radius, math.pi)),
+        RocketWaitGreaterHeightPhase(target_height),
+        RocketRoundOrbitalManeuverPhase(target_height),
+        RocketWaitGreaterHeightPhase(target_height),
         # RocketWaitForPlanetAntiphasePhase(sun, 0.017),
-        # RocketTestOrbitManeuverPhase(earth, sun, mars),
-        # RocketOrbitalBreakPhase()
+        SetTimeScalePhase(1000),
+        RocketTestOrbitManeuverPhase(earth, sun, mars),
+        RocketOrbitalBreakPhase()
     ]
 
     # rocket = OrbitInitRocket(9E6, 200, earth, Point((0, earth.radius + target_height)), earth.speed + Vector((2659.10, 0)), phases, fuel_speed=8000)
