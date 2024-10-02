@@ -1,5 +1,4 @@
 from physics import Vector, Point, Physics
-from entities import BaseRocket
 
 
 class Subscription:
@@ -88,7 +87,7 @@ class RocketEntityOutOfFuelEvent(Event):
 class GravityTrackingEvent(Event):
     sun = None
     earth = None
-    def __init__(self, time, rocket: BaseRocket):
+    def __init__(self, time, rocket):
         super().__init__(time)
         self.rocket = rocket
         self.sun_position = GravityTrackingEvent.sun.position
@@ -133,10 +132,10 @@ class FollowEventUncapture(FollowEvent):
 
 class PrintTotalSimTimeEvent(Event):
     def __init__(self):
-        super().__init__(0, False)
+        super().__init__(False)
 
 
 class SetSimulationTimeScaleEvent(Event):
     def __init__(self, time_scale: float):
-        super().__init__(0, False)
+        super().__init__(False)
         self.time_scale = time_scale

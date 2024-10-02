@@ -13,7 +13,7 @@ from entities import PhaseControlledRocket
 from events import GravityTrackingEvent
 from rocket_phases import RocketTestOrbitManeuverPhase, RocketOrbitalBreakPhase, RocketTakeoffPhase, RocketPrintHeightPhase
 from rocket_phases import RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase, SetTimeScalePhase
-from rocket_phases import RocketWaitGreaterHeightPhase, RocketWaitPolarAnglePhase, RocketOrbitalManeuverPhase
+from rocket_phases import RocketWaitGreaterHeightPhase, RocketWaitPolarAnglePhase, RocketOrbitalManeuverPhase, RocketPrelandSlowingPhase, RocketWaitLessHeightPhase, RocketLandPhase
 from widgets import LoggerWidget, ClockWidget, TimeScaleWidget, CaptureWidget
 
 if __name__ == '__main__':
@@ -43,7 +43,10 @@ if __name__ == '__main__':
         RocketWaitGreaterHeightPhase(target_height),
         SetTimeScalePhase(1000),
         RocketTestOrbitManeuverPhase(earth, sun, mars),
-        RocketOrbitalBreakPhase()
+        RocketOrbitalBreakPhase(),
+        RocketPrelandSlowingPhase(1 - 1E-8, 100_000_000),
+        RocketWaitLessHeightPhase(20_000_000),
+        RocketLandPhase(),
     ]
 
     rocket = PhaseControlledRocket(9E6, 200, earth, 0, phases, fuel_speed=8000)
