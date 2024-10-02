@@ -166,6 +166,28 @@ class RocketWaitPolarAnglePhase(RocketPhase):
             rocket.end_phase()
 
 
+class RocketPrelandSlowingPhase(RocketPhase):
+    def __init__(self, min_eccentricity, perigee_distance_to_brake):
+        self.min_eccentricity = min_eccentricity
+        self.perigee_distance_to_brake = perigee_distance_to_brake
+
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time):
+        orbit = Orbit.calculate_orbit(rocket.planet, rocket)
+
+        if orbit.eccentricity >= self.min_eccentricity:
+            rocket.end_phase()
+            return
+
+        # to perform slowing near perigee
+        if abs(rocket.height - orbit.perigee_height) <= self.perigee_distance_to_brake:
+            thrust_direction = -rocket.relative_speed.normalize()
+            delta_v_required = rocket.relative_speed.magnitude
+            delta_v_actual = min([delta_v_required, rocket.target_acceleration * delta_time])
+
+            thrust_vector = thrust_direction * rocket.weight * delta_v_actual / delta_time
+            rocket.fire_engine(thrust_vector, delta_time)
+
+
 class RocketWaitForPlanetAntiphasePhase(RocketPhase):
     def __init__(self,planet: Planet,  epsilon: float):
         self.epsilon = epsilon
@@ -176,6 +198,7 @@ class RocketWaitForPlanetAntiphasePhase(RocketPhase):
             print(rocket.planet.speed.magnitude, rocket.speed.magnitude)
             rocket.planet = self.planet
             rocket.end_phase()
+
 
 class RocketGravityCompensationPhase(RocketPhase):
     def __init__(self, earth: Planet, sun: Planet, mars: Planet):
