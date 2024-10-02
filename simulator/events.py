@@ -70,7 +70,7 @@ class RocketEvent(Event):
         self.position = position
         self.planet_position = planet_position
 
-class SimobjectOutOfFuelEvent(LogableEvent):
+class RocketSpritetOutOfFuelEvent(LogableEvent):
     def __init__(self, rocket):
         super().__init__()
         self.rocket = rocket
@@ -78,7 +78,7 @@ class SimobjectOutOfFuelEvent(LogableEvent):
     def __str__(self):
         return f"{self.rocket.name} is out of fuel!"
 
-class EntityOutOfFuelEvent(Event):
+class RocketEntityOutOfFuelEvent(Event):
     def __init__(self, rocket):
         super().__init__(store=False)
         self.rocket = rocket

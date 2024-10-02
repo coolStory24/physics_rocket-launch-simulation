@@ -1,7 +1,7 @@
 import math
 
 from physics import Entity, Point, Vector, Physics
-from events import EventRegistrer, EntityOutOfFuelEvent
+from events import EventRegistrer, RocketEntityOutOfFuelEvent
 
 
 class Planet(Entity):
@@ -30,7 +30,7 @@ class BaseRocket(Entity):
             self.force += engine_force_vector
             self.weight = next_weight
         else:
-            EventRegistrer.register_event(EntityOutOfFuelEvent(self))
+            EventRegistrer.register_event(RocketEntityOutOfFuelEvent(self))
 
     @property
     def absolute_height(self):
