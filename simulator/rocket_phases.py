@@ -2,6 +2,7 @@ import math
 
 from entities import Planet, BaseRocket, Orbit, RocketPhase, PhaseControlledRocket
 from physics import Physics, Vector, Point, Entity
+from events import EventRegistrer, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent
 
 
 class RocketTakeoffPhase(RocketPhase):
@@ -210,12 +211,17 @@ class RocketTestOrbitManeuverPhase(RocketPhase):
 
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
         orbit = Orbit.calculate_orbit(self.sun, rocket)
-        print(orbit.apogee_distance - Physics.calculate_distance(self.sun.position, self.mars.position), Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position))
+        # print(orbit.apogee_distance - Physics.calculate_distance(self.sun.position, self.mars.position), Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position))
         distance = Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position)
         # print(Orbit.calculate_orbit(self.sun, self.mars).apogee_distance - Orbit.calculate_orbit(self.sun, self.mars).perigee_distance)
-        if abs(distance) < 30_000_000:
-            print("time:", self.total_time, "angle:", Vector(self.sun.position, rocket.position).polar_angle)
-            print("\n" * 5)
+        if abs(distance) < 60_000_000:
+            print("distance:", distance)
+            EventRegistrer.register_event(PrintTotalSimTimeEvent())
+            print("angle:", Vector(self.sun.position, rocket.position).polar_angle)
+            print("\n")
+            EventRegistrer.register_event(SetSimulationTimeScaleEvent(10))
+            rocket.planet = self.mars
+            rocket.end_phase()
 
         sun_rocket_vector = Vector(self.sun.position, rocket.position).normalize()
         thrust_direction = Vector((sun_rocket_vector.y, -sun_rocket_vector.x)).normalize()
@@ -228,3 +234,18 @@ class RocketTestOrbitManeuverPhase(RocketPhase):
             thrust_vector += thrust_direction * (rocket.weight * rocket.target_acceleration) * 0.5
 
         rocket.fire_engine(thrust_vector, delta_time)
+
+
+class RocketOrbitalBreakPhase(RocketPhase):
+    def __init__(self):
+        pass
+
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
+        try:
+            orbit = Orbit.calculate_orbit(rocket.planet, rocket)
+            print("Done! eccentricity: ", orbit.eccentricity)
+        except ValueError:
+            print("Stop!")
+            thrust_direction = -rocket.relative_speed.normalize()
+            thrust_vector = thrust_direction * rocket.weight * rocket.target_acceleration
+            rocket.fire_engine(thrust_vector, delta_time)

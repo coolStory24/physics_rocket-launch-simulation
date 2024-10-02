@@ -118,3 +118,14 @@ class FollowEventCapture(FollowEvent):
 class FollowEventUncapture(FollowEvent):
     def __init__(self):
         super().__init__()
+
+
+class PrintTotalSimTimeEvent(Event):
+    def __init__(self):
+        super().__init__(0, False)
+
+
+class SetSimulationTimeScaleEvent(Event):
+    def __init__(self, time_scale: float):
+        super().__init__(0, False)
+        self.time_scale = time_scale
