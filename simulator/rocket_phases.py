@@ -230,11 +230,11 @@ class RocketTestOrbitManeuverPhase(RocketPhase):
         print("distance:", distance)
         if abs(distance) < 50_000_000:
             EventRegistrer.register_event(PrintTotalSimTimeEvent())
-            # EventRegistrer.register_event(SetSimulationTimeScaleEvent(10))
+            EventRegistrer.register_event(SetSimulationTimeScaleEvent(10))
             print("distance:", distance, "angle:", Vector(self.sun.position, rocket.position).polar_angle)
             print("mars angle:", Vector(self.sun.position, self.mars.position).polar_angle)
             rocket.planet = self.mars
-            # rocket.end_phase()
+            rocket.end_phase()
 
         sun_rocket_vector = Vector(self.sun.position, rocket.position).normalize()
         thrust_direction = Vector((sun_rocket_vector.y, -sun_rocket_vector.x)).normalize()
@@ -242,7 +242,7 @@ class RocketTestOrbitManeuverPhase(RocketPhase):
         self.total_time += delta_time
         if self.total_time >= 0.3 * 10 ** 7:
             return
-        thrust_vector = Physics.calculate_gravity(self.earth, rocket) * 0.093
+        thrust_vector = Physics.calculate_gravity(self.earth, rocket) * 0.095
         if orbit.apogee_distance <= Physics.calculate_distance(self.sun.position, self.mars.position):
             thrust_vector += thrust_direction * (rocket.weight * rocket.target_acceleration) * 0.5
 
