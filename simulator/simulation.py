@@ -1,20 +1,18 @@
 import sys
 import pygame
 import time
-from typing import TypeVar
 
 import config
 from groups import RenderGroup, WidgetGroup, ClickableGroup
 from physics import Vector, Point
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
-from events import Event, EventRegistrer, EventSubscriber, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent, FollowEvent, FollowEventCapture, FollowEventUncapture
-from widgets import LoggerWidget, ClockWidget, TimeScaleWidget
+from events import EventRegistrer, EventSubscriber, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent, FollowEvent, FollowEventCapture, FollowEventUncapture, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent
 from logger import ConsoleLogger
 
 
 class Simulation(EventSubscriber):
     def __init__(self, dimensions=(1920, 1080), offset = (960, 540), pixels_per_meter: float = 1E-5,
-                 time_scale: float = 1E3, amount_of_iterations: float = 40, groups=(), widgets=(), clickable=()):
+                 time_scale: float = 10, amount_of_iterations: float = 40, groups=(), widgets=(), clickable=()):
         self.width, self.height = dimensions
         self.main_window = None
         self.paused = False
@@ -38,7 +36,7 @@ class Simulation(EventSubscriber):
         if config.VERBOSE:
             self.console_logger = ConsoleLogger()
 
-        self.subscribe(PauseEvent, TimeScaleUpdateEvent, FollowEvent)
+        self.subscribe(PauseEvent, TimeScaleUpdateEvent, FollowEvent, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent)
 
     @property
     def display_center(self):
@@ -70,6 +68,11 @@ class Simulation(EventSubscriber):
             self.followed_position = event.screen_pos
         if isinstance(event, FollowEventUncapture):
             self.followed_sprite = None
+        if isinstance(event, PrintTotalSimTimeEvent):
+            print("Total sim time:", self.total_sim_time)
+        if isinstance(event, SetSimulationTimeScaleEvent):
+            self.time_scale = event.time_scale
+
 
     def handle_pygame_event(self, event):
         if event.type == pygame.MOUSEWHEEL:

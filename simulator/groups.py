@@ -9,6 +9,7 @@ from physics import Vector, Point, Physics
 from entities import Planet, BaseRocket
 from simobjects import SimRocketObject, SimPlanetaryObject
 from events import RocketEvent, EventRegistrer, CollisionEvent
+from events import GravityTrackingEvent
 
 
 class PhysicsGroup(Group):
@@ -53,6 +54,7 @@ class SmartGroup(PhysicsGroup):
         for rocket in rockets:
             rocket.make_decision(delta_time)
             EventRegistrer.register_event(RocketEvent(self.time, rocket.speed.copy(), rocket.position, rocket.planet.position))
+            EventRegistrer.register_event(GravityTrackingEvent(self.time, rocket))
 
 
 class CollisionGroup(PhysicsGroup):
