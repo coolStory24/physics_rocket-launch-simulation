@@ -69,7 +69,7 @@ class SimRocketObject(SimObject, EventSubscriber):
         self.no_fuel_notifyed = False
 
     def handle_event(self, event):
-        if not self.no_fuel_notifyed:
+        if not self.no_fuel_notifyed and event.rocket == self.entity:
             EventRegistrer.register_event(SimobjectOutOfFuelEvent(self))
             self.no_fuel_notifyed = True
 

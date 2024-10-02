@@ -81,6 +81,7 @@ class SimobjectOutOfFuelEvent(LogableEvent):
 class EntityOutOfFuelEvent(Event):
     def __init__(self, rocket):
         super().__init__(store=False)
+        self.rocket = rocket
 
 
 class BuildPlotsEvent(Event):
