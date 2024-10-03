@@ -1,5 +1,4 @@
 from physics import Vector, Point, Physics
-from entities import BaseRocket
 
 
 class Subscription:
@@ -40,7 +39,7 @@ class EventSubscriber:
 
 
 class Event:
-    def __init__(self, store: bool=True):
+    def __init__(self, store: bool=False):
         self.store = store
 
 
@@ -88,8 +87,10 @@ class RocketEntityOutOfFuelEvent(Event):
 class GravityTrackingEvent(Event):
     sun = None
     earth = None
-    def __init__(self, time, rocket: BaseRocket):
-        super().__init__(time)
+
+    def __init__(self, time, rocket):
+        super().__init__(store=False)
+        self.time = time
         self.rocket = rocket
         self.sun_position = GravityTrackingEvent.sun.position
         self.earth_position = GravityTrackingEvent.earth.position
@@ -112,6 +113,13 @@ class TimeScaleUpdateEvent(Event):
         self.time_scale = time_scale
         self.amount_of_iterations = amount_of_iterations
 
+
+class SetSimulationTimeScaleEvent(Event):
+    def __init__(self, time_scale: float):
+        super().__init__(False)
+        self.time_scale = time_scale
+
+
 class NoFuelForManeuverEvent(Event):
     def __init__(self, rocket):
         self.rocket = rocket
@@ -133,10 +141,4 @@ class FollowEventUncapture(FollowEvent):
 
 class PrintTotalSimTimeEvent(Event):
     def __init__(self):
-        super().__init__(0, False)
-
-
-class SetSimulationTimeScaleEvent(Event):
-    def __init__(self, time_scale: float):
-        super().__init__(0, False)
-        self.time_scale = time_scale
+        super().__init__(False)

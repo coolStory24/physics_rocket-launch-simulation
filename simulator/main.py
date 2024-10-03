@@ -13,7 +13,7 @@ from entities import PhaseControlledRocket
 from events import GravityTrackingEvent
 from rocket_phases import RocketTestOrbitManeuverPhase, RocketOrbitalBreakPhase, RocketTakeoffPhase, RocketPrintHeightPhase
 from rocket_phases import RocketRoundOrbitalManeuverPhase, RocketOrbitCorrectPhase, SetTimeScalePhase
-from rocket_phases import RocketWaitGreaterHeightPhase, RocketWaitPolarAnglePhase, RocketOrbitalManeuverPhase
+from rocket_phases import RocketWaitGreaterHeightPhase, RocketWaitPolarAnglePhase, RocketOrbitalManeuverPhase, RocketPrelandSlowingPhase, RocketWaitLessHeightPhase, RocketLandPhase
 from widgets import LoggerWidget, ClockWidget, TimeScaleWidget, CaptureWidget
 
 if __name__ == '__main__':
@@ -43,14 +43,22 @@ if __name__ == '__main__':
         RocketWaitGreaterHeightPhase(target_height),
         SetTimeScalePhase(1000),
         RocketTestOrbitManeuverPhase(earth, sun, mars),
-        RocketOrbitalBreakPhase()
+        SetTimeScalePhase(100),
+        RocketOrbitalBreakPhase(),
+        RocketPrelandSlowingPhase(1 - 1E-4, 1_000_000_000),
+        RocketWaitLessHeightPhase(100_000_000),
+        SetTimeScalePhase(10),
+        RocketPrelandSlowingPhase(1 - 1E-6, 30_000_000),
+        RocketWaitLessHeightPhase(20_000_000),
+        RocketLandPhase(),
     ]
 
     rocket = PhaseControlledRocket(9E6, 200, earth, 0, phases, fuel_speed=8000)
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
 
     # Building graphs
-    rocket_tracker = RocketTracker()
+    if config.BUILD_GRAPHICS:
+        rocket_tracker = RocketTracker()
 
     GravityTrackingEvent.sun = sun
     GravityTrackingEvent.earth = earth
@@ -65,6 +73,6 @@ if __name__ == '__main__':
         amount_of_iterations=config.AMOUNT_OF_ITERATIONS,
         groups=create_physics_groups(earth_sprite, moon_sprite, sun_sprite, mars_sprite, rocket_sprite),
         widgets=(logger_widget, clock_widget, time_scale_widget, capture_widget),
-        clickable=(earth_sprite, rocket_sprite)
+        clickable=(earth_sprite, rocket_sprite, mars_sprite, sun_sprite, moon_sprite),
     )
     simulation.run()
