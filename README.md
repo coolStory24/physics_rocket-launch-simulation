@@ -26,16 +26,17 @@ python3 main.py --help
 
 ## Building graphics
 
-![graphic](media/speed-vs-time.jpg)
-![graphic](media/height-vs-time.jpg)
-![graphic](media/rocket-trajectory.jpg)
-![graphic](media/hohmann-transfer-orbit.jpg)
+![graphic](media/speed-vs-time.png)
+![graphic](media/rocket-trajectory.png)
+![graphic](media/acceleration-vs-time.png)
 
 You can use `-g` or `--build-graphics` option to build graphics when rocket lands.
 
 ```bash
 python3 main.py --build-graphics
 ```
+
+**Warning**: building graphics for mars voyage requires 12G ram(TODO: optimise2)
 
 ## Configure
 
@@ -50,3 +51,5 @@ Confige file: `simulator/config.py`.
 - `mouse` for navigation and scale
 - `[`, `]` - to change time acceleration
 - `space` - pause
+- click on entity to follow it
+- `escape` to unfollow entity

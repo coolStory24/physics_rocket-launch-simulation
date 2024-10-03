@@ -1,6 +1,7 @@
 import math
 
 from physics import Entity, Point, Vector, Physics
+from events import EventRegistrer, RocketEntityOutOfFuelEvent
 
 
 class Planet(Entity):
@@ -28,9 +29,82 @@ class BaseRocket(Entity):
         if next_weight >= self.payload_weight:
             self.force += engine_force_vector
             self.weight = next_weight
+        else:
+            EventRegistrer.register_event(RocketEntityOutOfFuelEvent(self))
+
+    @property
+    def absolute_height(self):
+        return Physics.calculate_distance(self.position, self.planet.position)
+
+    @property
+    def height(self):
+        return Physics.calculate_distance(self.position, self.planet.position) - self.planet.radius
+
+    @property
+    def position_vector(self):
+        return Vector(self.planet.position, self.position)
+
+    @property
+    def polar_angle(self):
+        return self.position_vector.polar_angle
+
+    @property
+    def gravity_to_planet(self):
+        return Physics.calculate_gravity(self, self.planet)
+
+    @property
+    def relative_speed(self):
+        return self.speed - self.planet.speed
+
+    @property
+    def takeoff_speed(self):
+        return self.position_vector.normalize() * Vector.dot_product(self.position_vector.normalize(), self.relative_speed)
 
     def make_decision(self, delta_time: float):
-        pass
+        raise NotImplementedError("Call make_decision of BaseRocket")
+
+
+class PhaseControlledRocket(BaseRocket):
+    def __init__(self, weight: float, payload_weight: float, planet: Planet, polar_angle: float,
+                 phase_list, target_acceleration: float = 3.0 * 9.8, fuel_speed: float = 3000):
+        super().__init__(weight, payload_weight, planet, polar_angle, fuel_speed)
+        self.target_acceleration = target_acceleration
+        self.phase_stack = phase_list[::-1]
+
+    def end_phase(self):
+        self.phase_stack.pop()
+
+    def new_phase(self, phase):
+        self.phase_stack.append(phase)
+
+    def replace_current_phase(self, phase):
+        self.end_phase()
+        self.new_phase(phase)
+
+    def make_decision(self, delta_time):
+        if len(self.phase_stack) != 0:
+            self.phase_stack[-1].make_decision(self, delta_time)
+
+
+class RocketPhase:
+    def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
+        raise NotImplementedError("Call make_decision of abstract phase")
+
+    @staticmethod
+    def add_speed(rocket: PhaseControlledRocket, delta_v_required: Vector, delta_time: float):
+        delta_v_actual = min(delta_v_required.magnitude, rocket.target_acceleration * delta_time)
+        thrust_vector = delta_v_required.normalize() * (rocket.weight * delta_v_actual / delta_time)
+        rocket.fire_engine(thrust_vector, delta_time)
+
+    @staticmethod
+    def add_acceleration(rocket: PhaseControlledRocket, acceleration_required: Vector, delta_time):
+        acceleration_actual_magnitude = min(acceleration_required.magnitude, rocket.target_acceleration)
+        thrust_vector = acceleration_required.normalize() * acceleration_actual_magnitude
+        rocket.fire_engine(thrust_vector, delta_time)
+
+    @staticmethod
+    def add_force(rocket: PhaseControlledRocket, force_required: Vector, delta_time):
+        RocketPhase.add_acceleration(rocket, force_required / rocket.weight, delta_time)
 
 
 class Orbit:
@@ -46,6 +120,11 @@ class Orbit:
         self.apogee_height = self.apogee_distance - self.planet.radius
 
     @staticmethod
+    def with_apogee(planet, perigee_distance, apogee_distance, polar_angle):
+        eps = (apogee_distance - perigee_distance) / (apogee_distance + perigee_distance)
+        return Orbit(planet, perigee_distance - planet.radius, eps, polar_angle)
+
+    @staticmethod
     def calculate_orbit(planet: Planet, entity: Entity):
         # Gravitational parameter μ = G * planet_mass
         mu = Physics.G * planet.weight
@@ -53,7 +132,9 @@ class Orbit:
         # Distance between the planet and the entity
         r = Vector(planet.position, entity.position)
 
-        v = entity.speed.magnitude
+        relative_speed = entity.speed - planet.speed
+
+        v = relative_speed.magnitude
 
         # Specific orbital energy
         epsilon = (v ** 2) / 2 - (mu / r.magnitude)
@@ -62,11 +143,11 @@ class Orbit:
         semi_major_axis = -mu / (2 * epsilon)
 
         # Angular momentum vector h = r x v
-        angular_momentum = r.cross_product(entity.speed)
+        angular_momentum = r.cross_product(relative_speed)
         h = angular_momentum
 
         # Eccentricity vector
-        eccentricity_vector = (entity.speed * (angular_momentum / mu)) - (r / r.magnitude)
+        eccentricity_vector = (relative_speed * (angular_momentum / mu)) - (r / r.magnitude)
 
         # Eccentricity e
         eccentricity = math.sqrt(1 + (2 * epsilon * h ** 2) / mu ** 2)

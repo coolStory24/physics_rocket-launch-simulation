@@ -1,19 +1,18 @@
 import sys
-
 import pygame
+import time
 
 import config
-from groups import RenderGroup, PhysicsGroup, WidgetGroup
-from physics import Vector
+from groups import RenderGroup, WidgetGroup, ClickableGroup
+from physics import Vector, Point
 from config import MOUSE_SCALE_DELTA, OFFSET_DELTA, SCALE_DELTA
-from events import EventRegistrer, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent
-from widgets import LoggerWidget, ClockWidget, TimeScaleWidget
+from events import EventRegistrer, EventSubscriber, BuildPlotsEvent, PauseEvent, TimeScaleUpdateEvent, FollowEvent, FollowEventCapture, FollowEventUncapture, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent
 from logger import ConsoleLogger
 
 
-class Simulation:
+class Simulation(EventSubscriber):
     def __init__(self, dimensions=(1920, 1080), offset = (960, 540), pixels_per_meter: float = 1E-5,
-                 time_scale: float = 1E3, amount_of_iterations: float = 40, groups=(), widgets=()):
+                 time_scale: float = 10, amount_of_iterations: float = 40, groups=(), widgets=(), clickable=()):
         self.width, self.height = dimensions
         self.main_window = None
         self.paused = False
@@ -22,88 +21,125 @@ class Simulation:
         self.time_scale = time_scale
         self.amount_of_iterations = amount_of_iterations
         self.total_sim_time = 0
+        self.offset = Vector(offset)
+        self.mouse_on_time = 0
 
         self.objects = {sprite for group in groups for sprite in group}
         self.groups = groups
         self.render_group = RenderGroup(*self.objects)
+        self.widget_group = WidgetGroup(widgets)
+        self.clickable_group = ClickableGroup(clickable)
 
-        self.offset = Vector(offset)
-
-        logger_widget = LoggerWidget()
-        clock_widget = ClockWidget()
-        time_scale_widget = TimeScaleWidget(self.paused, self.time_scale, self.amount_of_iterations)
-        self.widget_group = WidgetGroup(logger_widget, clock_widget, time_scale_widget)
+        self.followed_sprite = None
+        self.followed_position = Vector((0, 0))
 
         if config.VERBOSE:
             self.console_logger = ConsoleLogger()
 
+        self.subscribe(PauseEvent, TimeScaleUpdateEvent, FollowEvent, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent)
+
+    @property
+    def display_center(self):
+        return Vector((pygame.display.Info().current_w / 2, pygame.display.Info().current_h / 2))
+
     def update_pixels_per_meter(self, center: Vector, delta: float):
         # recalculating offset to keep center in the same position on the screen
-        self.offset = center - (center - self.offset) * delta
+        if self.followed_sprite is None:
+            self.offset = center - (center - self.offset) * delta
+        else:
+            self.followed_position = center - (center - self.followed_position) * delta
 
         self.pixels_per_meter *= delta
 
+    def add_offset(self, addition: Vector):
+        if self.followed_sprite is None:
+            self.offset += addition
+        else:
+            self.followed_position += addition
+
+    def handle_event(self, event):
+        if isinstance(event, PauseEvent):
+            self.paused = event.is_paused
+        if isinstance(event, TimeScaleUpdateEvent):
+            self.time_scale = event.time_scale
+            self.amount_of_iterations = event.amount_of_iterations
+        if isinstance(event, FollowEventCapture):
+            self.followed_sprite = event.captured_sprite
+            self.followed_position = event.screen_pos
+        if isinstance(event, FollowEventUncapture):
+            self.followed_sprite = None
+        if isinstance(event, PrintTotalSimTimeEvent):
+            print("Total sim time:", self.total_sim_time)
+        if isinstance(event, SetSimulationTimeScaleEvent):
+            self.time_scale = event.time_scale
+
+
     def handle_pygame_event(self, event):
-        # change scale with mouse wheel
         if event.type == pygame.MOUSEWHEEL:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.update_pixels_per_meter(Vector((mouse_x, mouse_y)), MOUSE_SCALE_DELTA ** event.y if event.y > 0 else 1 / MOUSE_SCALE_DELTA ** (-event.y))
 
-        # hold any mouse button to drag
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            self.dragging = True
-            pygame.mouse.get_rel()
-        if event.type == pygame.MOUSEBUTTONUP:
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            left, _, _ = pygame.mouse.get_pressed()
+            if left:
+                self.dragging = True
+                self.mouse_on_time = time.time()
+                pygame.mouse.get_rel()
+
+        elif event.type == pygame.MOUSEBUTTONUP:
             self.dragging = False
+
+            if time.time() - self.mouse_on_time < config.MOUSECLICK_TIME:
+                self.clickable_group.process_mouseclick(Point(pygame.mouse.get_pos()))
+
         if event.type == pygame.MOUSEMOTION and self.dragging:
-            self.offset += Vector(pygame.mouse.get_rel())
+            self.add_offset(Vector(pygame.mouse.get_rel()))
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_c:
                 config.draw_markers = not config.draw_markers
             if event.key == pygame.K_h:
                 config.draw_widgets = not config.draw_widgets
+            if event.key == pygame.K_ESCAPE:
+                EventRegistrer.register_event(FollowEventUncapture())
 
             if event.key == pygame.K_p:
                 EventRegistrer.register_event(BuildPlotsEvent())
             if event.key == pygame.K_SPACE:
-                self.paused = not self.paused
-                EventRegistrer.register_event(PauseEvent(self.paused))
+                EventRegistrer.register_event(PauseEvent(not self.paused))
             if event.key == pygame.K_LEFTBRACKET and self.amount_of_iterations // config.AMOUNT_OF_ITERATIONS_DELTA >= 1:
-                self.amount_of_iterations //= config.AMOUNT_OF_ITERATIONS_DELTA
-                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale, self.amount_of_iterations))
+                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale, self.amount_of_iterations // config.AMOUNT_OF_ITERATIONS_DELTA))
             if event.key == pygame.K_RIGHTBRACKET and self.amount_of_iterations * config.AMOUNT_OF_ITERATIONS_DELTA <= config.MAX_AMOUNT_OF_ITERATIONS:
-                self.amount_of_iterations *= config.AMOUNT_OF_ITERATIONS_DELTA
-                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale, self.amount_of_iterations))
+                EventRegistrer.register_event(TimeScaleUpdateEvent(self.time_scale, self.amount_of_iterations * config.AMOUNT_OF_ITERATIONS_DELTA))
 
         # window is resized
+
         if event.type == pygame.VIDEORESIZE:
             self.width, self.height = event.w, event.h
 
     def process_keyboard(self):
         keys = pygame.key.get_pressed()
 
-        display_center = Vector((pygame.display.Info().current_w / 2, pygame.display.Info().current_h / 2))
         if keys[pygame.K_PLUS] or keys[pygame.K_EQUALS]:
-            self.update_pixels_per_meter(display_center, SCALE_DELTA)
+            self.update_pixels_per_meter(self.display_center, SCALE_DELTA)
         if keys[pygame.K_MINUS]:
-            self.update_pixels_per_meter(display_center, 1/SCALE_DELTA)
+            self.update_pixels_per_meter(self.display_center, 1/SCALE_DELTA)
 
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.offset += Vector((0, OFFSET_DELTA))
+            self.add_offset(Vector((0, OFFSET_DELTA)))
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.offset += Vector((0, -OFFSET_DELTA))
+            self.add_offset(Vector((0, -OFFSET_DELTA)))
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.offset += Vector((OFFSET_DELTA, 0))
+            self.add_offset(Vector((OFFSET_DELTA, 0)))
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.offset += Vector((-OFFSET_DELTA, 0))
+            self.add_offset(Vector((-OFFSET_DELTA, 0)))
 
     def run(self):
         pygame.init()
         self.main_window = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
         pygame.display.set_caption('Rocket Simulator')
         icon = pygame.image.load(config.ICON_PATH)
-        pygame.display.set_icon(icon    )
+        pygame.display.set_icon(icon)
         delta_time = 1 / 60
         clock = pygame.time.Clock()
 
@@ -126,7 +162,12 @@ class Simulation:
 
                     self.total_sim_time += delta_time * self.time_scale
 
-            self.render_group.render(self.main_window, self.pixels_per_meter, self.offset)
+            self.render_group.update_screen_settings(self.pixels_per_meter, self.offset)
+
+            if self.followed_sprite is not None:
+                self.offset += self.followed_position - Vector(self.followed_sprite.center_on_screen)
+
+            self.render_group.render(self.main_window)
             self.widget_group.render(self.main_window, self.total_sim_time)
 
             pygame.display.flip()

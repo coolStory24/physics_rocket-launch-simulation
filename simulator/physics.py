@@ -11,6 +11,9 @@ class Vector:
         else:
             raise ValueError("Invalid number of arguments")
 
+    def __neg__(self):
+        return Vector([-i for i in self._coordinates])
+
     def __add__(self, other):
         return Vector([i + j for i, j in zip(self._coordinates, other.coordinates)])
 

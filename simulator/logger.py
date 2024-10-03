@@ -4,6 +4,7 @@ import events
 import config
 from events import EventSubscriber
 from physics import Physics
+from events import GravityTrackingEvent
 
 
 class Logger(events.EventSubscriber):
@@ -25,11 +26,15 @@ class RocketTracker(EventSubscriber):
         self.subscribe(events.RocketEvent)
         self.subscribe(events.CollisionEvent)
         self.subscribe(events.BuildPlotsEvent)
+        self.subscribe(events.GravityTrackingEvent)
         self.data = []
+        self.gravity_data = []
 
     def handle_event(self, event):
         if isinstance(event, events.RocketEvent):
             self.data.append(event)
+        elif isinstance(event, events.GravityTrackingEvent):
+            self.gravity_data.append(event)
         elif isinstance(event, events.CollisionEvent) and config.BUILD_GRAPHICS or isinstance(event, events.BuildPlotsEvent):
             self.build_plot()
 
@@ -38,6 +43,16 @@ class RocketTracker(EventSubscriber):
         self.build_height_plot()
         self.build_acceleration_plot()
         self.build_position_plot()
+        self.build_gravity_graph()
+
+    def build_gravity_graph(self):
+        plt.plot([e.time for e in self.gravity_data], [e.sun_gravity for e in self.gravity_data], label="Sun")
+        plt.plot([e.time for e in self.gravity_data], [e.earth_gravity for e in self.gravity_data], label="Earth")
+        plt.xlabel('Time')
+        plt.ylabel('Gravity')
+        plt.title('Gravity to Sun and Earth vs Time')
+        plt.legend()
+        plt.show()
 
     def build_speed_plot(self):
         plt.plot([e.time for e in self.data], [e.speed.magnitude for e in self.data])
