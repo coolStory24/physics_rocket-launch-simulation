@@ -22,7 +22,7 @@ if __name__ == '__main__':
     earth = Planet(5.972E24, Point((0, 0)), Vector((0, -29780)), 6371E3, -math.pi / 12 / 60 / 60)
     moon = Planet(7.346E22, Point((earth.position.x + 384E6, 0)), Vector((0.0, earth.speed.y -1.022E3)), 1737E3, 0)
     sun = Planet(1.989E30, Point((-1.496E11, 0)), Vector((0, 0)), 696340E3, 0)
-    mars = Planet(6.39E23, Point((149293154749.65826 + sun.position.x, -172191648882.55933)), Vector((-18235.423356392195, -15810.429244034829)), 3389E3, 0 * math.pi / 24.62 / 2 / 60 / 60)
+    mars = Planet(6.39E23, Point((149293154749.65826 + sun.position.x, -172191648882.55933)), Vector((-18235.423356392195, -15810.429244034829)), 3389E3, 0)
 
     earth_sprite = SimPlanetaryObject(earth, pygame.Color("deepskyblue"), name="Earth")
     moon_sprite = SimPlanetaryObject(moon, pygame.Color("white"), name="Moon")
