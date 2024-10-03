@@ -15,6 +15,7 @@ MAX_AMOUNT_OF_ITERATIONS = 4096
 AMOUNT_OF_ITERATIONS_DELTA = 2
 CLICK_RADIUS = 60
 MOUSECLICK_TIME = 0.2
+WINDOW_NAME = 'Kabal space program'
 
 draw_markers = True
 draw_widgets = True
