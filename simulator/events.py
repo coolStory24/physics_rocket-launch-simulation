@@ -90,6 +90,7 @@ class GravityTrackingEvent(Event):
 
     def __init__(self, time, rocket):
         super().__init__(store=False)
+        self.time = time
         self.rocket = rocket
         self.sun_position = GravityTrackingEvent.sun.position
         self.earth_position = GravityTrackingEvent.earth.position

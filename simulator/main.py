@@ -73,6 +73,6 @@ if __name__ == '__main__':
         amount_of_iterations=config.AMOUNT_OF_ITERATIONS,
         groups=create_physics_groups(earth_sprite, moon_sprite, sun_sprite, mars_sprite, rocket_sprite),
         widgets=(logger_widget, clock_widget, time_scale_widget, capture_widget),
-        clickable=(earth_sprite, rocket_sprite)
+        clickable=(earth_sprite, rocket_sprite, mars_sprite, sun_sprite, moon_sprite),
     )
     simulation.run()
