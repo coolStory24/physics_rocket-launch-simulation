@@ -43,6 +43,7 @@ if __name__ == '__main__':
         RocketWaitGreaterHeightPhase(target_height),
         SetTimeScalePhase(1000),
         RocketTestOrbitManeuverPhase(earth, sun, mars),
+        SetTimeScalePhase(10),
         RocketOrbitalBreakPhase(),
         RocketPrelandSlowingPhase(1 - 1E-8, 100_000_000),
         RocketWaitLessHeightPhase(20_000_000),
@@ -53,7 +54,8 @@ if __name__ == '__main__':
     rocket_sprite = SimRocketObject(rocket, name="Rocket")
 
     # Building graphs
-    rocket_tracker = RocketTracker()
+    if config.BUILD_GRAPHICS:
+        rocket_tracker = RocketTracker()
 
     GravityTrackingEvent.sun = sun
     GravityTrackingEvent.earth = earth

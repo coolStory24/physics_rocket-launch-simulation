@@ -3,7 +3,7 @@ import pygame
 
 import config
 from logger import Logger
-from events import EventSubscriber, PauseEvent, TimeScaleUpdateEvent, FollowEvent, FollowEventCapture, FollowEventUncapture
+from events import EventSubscriber, PauseEvent, TimeScaleUpdateEvent, FollowEvent, FollowEventCapture, FollowEventUncapture, SetSimulationTimeScaleEvent
 
 
 class Widget(Sprite):
@@ -54,7 +54,7 @@ class TimeScaleWidget(Widget, EventSubscriber):
         self.is_paused = is_paused
         self.time_scale = time_scale
         self.amount_of_iterations = amount_of_iterations
-        self.subscribe(PauseEvent, TimeScaleUpdateEvent)
+        self.subscribe(PauseEvent, TimeScaleUpdateEvent, SetSimulationTimeScaleEvent)
 
     def handle_event(self, event):
         if isinstance(event, PauseEvent):
@@ -62,6 +62,8 @@ class TimeScaleWidget(Widget, EventSubscriber):
         elif isinstance(event, TimeScaleUpdateEvent):
             self.time_scale = event.time_scale
             self.amount_of_iterations = event.amount_of_iterations
+        elif isinstance(event, SetSimulationTimeScaleEvent):
+            self.time_scale = event.time_scale
         else:
             raise ValueError("Unsupported event")
 

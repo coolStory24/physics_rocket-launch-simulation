@@ -1,5 +1,7 @@
 import math
 
+import config
+
 from entities import Planet, Orbit, RocketPhase, PhaseControlledRocket
 from physics import Physics, Vector, Entity
 from events import EventRegistrer, PrintTotalSimTimeEvent, SetSimulationTimeScaleEvent
@@ -236,28 +238,27 @@ class RocketSolarManeuverPhase(RocketPhase):
 
 
 class RocketTestOrbitManeuverPhase(RocketPhase):
-    def __init__(self, earth: Planet, sun: Planet, mars: Planet):
-        self.earth = earth
-        self.sun = sun
-        self.mars = mars
+    def __init__(self, source_planet: Planet, star: Planet, target_planet: Planet, crossing_distance: float = 10_000):
+        self.source_planet = source_planet
+        self.target_planet = target_planet
+        self.star = star
         self.total_time = 0
+        self.crossing_distance = crossing_distance
 
     def make_decision(self, rocket: PhaseControlledRocket, delta_time):
-        orbit = Orbit.calculate_orbit(self.sun, rocket)
-        distance = Physics.calculate_distance(self.sun.position, rocket.position) - Physics.calculate_distance(self.mars.position, self.sun.position)
-        if 10_000 < distance:
-            EventRegistrer.register_event(PrintTotalSimTimeEvent())
-            EventRegistrer.register_event(SetSimulationTimeScaleEvent(10))
-            rocket.planet = self.mars
+        orbit = Orbit.calculate_orbit(self.star, rocket)
+        distance = Physics.calculate_distance(self.star.position, rocket.position) - Physics.calculate_distance(self.target_planet.position, self.star.position)
+        if self.crossing_distance < distance:
+            rocket.planet = self.target_planet
             rocket.end_phase()
 
-        sun_rocket_vector = Vector(self.sun.position, rocket.position).normalize()
+        sun_rocket_vector = Vector(self.star.position, rocket.position).normalize()
         thrust_direction = Vector((sun_rocket_vector.y, -sun_rocket_vector.x)).normalize()
         self.total_time += delta_time
         if self.total_time >= 0.3 * 10 ** 7:
             return
-        thrust_vector = Physics.calculate_gravity(self.earth, rocket) * 0.095
-        if orbit.apogee_distance <= Physics.calculate_distance(self.sun.position, self.mars.position):
+        thrust_vector = Physics.calculate_gravity(self.source_planet, rocket) * 0.095
+        if orbit.apogee_distance <= Physics.calculate_distance(self.star.position, self.target_planet.position):
             thrust_vector += thrust_direction * (rocket.weight * rocket.target_acceleration) * 0.5
 
         rocket.fire_engine(thrust_vector, delta_time)
