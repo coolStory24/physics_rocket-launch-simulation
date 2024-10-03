@@ -271,6 +271,7 @@ class RocketOrbitalBreakPhase(RocketPhase):
     def make_decision(self, rocket: PhaseControlledRocket, delta_time: float):
         try:
             orbit = Orbit.calculate_orbit(rocket.planet, rocket)
+            rocket.end_phase()
         except ValueError:
             thrust_direction = -rocket.relative_speed.normalize()
             thrust_vector = thrust_direction * rocket.weight * rocket.target_acceleration
